@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Elite_Soccer.Vistas.CalendarioPage"
+             BackgroundColor="#111111"
+             Title="Calendario"
+             NavigationPage.HasNavigationBar="False">
+
+    <StackLayout Spacing="20" Padding="20">
+
+        <!-- Botón de regreso -->
+        <Image Source="volver.png"
+               HeightRequest="30"
+               WidthRequest="30"
+               HorizontalOptions="Start">
+            <Image.GestureRecognizers>
+                <TapGestureRecognizer Tapped="Volver_Clicked"/>
+            </Image.GestureRecognizers>
+        </Image>
+
+        <Label Text="CALENDARIO DE PARTIDOS"
+               FontSize="22"
+               TextColor="Gold"
+               FontAttributes="Bold"
+               HorizontalOptions="Center"/>
+
+        <ListView x:Name="listaCalendario"
+                  BackgroundColor="Transparent"
+                  SeparatorColor="Gold"
+                  HasUnevenRows="True">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <TextCell Text="{Binding descripcion}"
+                              TextColor="White"
+                              DetailColor="Gray"/>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+    </StackLayout>
+</ContentPage>

@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Elite_Soccer.Vistas.EditarPartido"
+             Title="Editar Partido"
+             BackgroundColor="#111111"
+             NavigationPage.HasNavigationBar="False"
+             >
+    
+    <StackLayout Padding="20" Spacing="20">
+        <!-- Encabezado -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="volver.png"
+HeightRequest="30"
+WidthRequest="30"
+Grid.Column="0">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="Volver_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+
+            <Label Text="Editar Partido ⚽"
+FontSize="22"
+TextColor="Gold"
+FontAttributes="Bold"
+HorizontalOptions="Center"
+Grid.Column="1"/>
+        </Grid>
+       
+
+        <Picker x:Name="pickerCategoria"
+                Title="Categoría"
+                TitleColor="Gray"
+                TextColor="White"
+                SelectedIndexChanged="pickerCategoria_SelectedIndexChanged" />
+
+        <Picker x:Name="pickerEquipoLocal"
+                Title="Equipo Local"
+                TitleColor="Gray"
+                TextColor="White" />
+
+        <Picker x:Name="pickerEquipoVisitante"
+                Title="Equipo Visitante"
+                TitleColor="Gray"
+                TextColor="White" />
+
+        <DatePicker x:Name="dateFecha"
+                    TextColor="White" />
+
+        <TimePicker x:Name="timeHora"
+                    TextColor="White" />
+
+        <Button Text="Guardar Cambios"
+                BackgroundColor="Gold"
+                TextColor="Black"
+                Clicked="BtnGuardar_Clicked" />
+
+        <Button Text="Eliminar Partido"
+                BackgroundColor="Red"
+                TextColor="White"
+                Clicked="BtnEliminar_Clicked" />
+    </StackLayout>
+</ContentPage>

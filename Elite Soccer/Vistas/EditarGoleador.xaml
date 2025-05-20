@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Elite_Soccer.Vistas.EditarGoleador"
+             NavigationPage.HasNavigationBar="False"
+             Title="Editar Goleador"
+             BackgroundColor="#111111">
+
+    <StackLayout Padding="20" Spacing="15">
+
+        <Label Text="Editar Goleador"
+               FontSize="24"
+               TextColor="Gold"
+               HorizontalOptions="Center"/>
+
+        <Entry x:Name="txtNombre"
+               IsEnabled="False"
+               TextColor="White"/>
+
+        <Entry x:Name="txtEquipo"
+               IsEnabled="False"
+               TextColor="White"/>
+
+        <Entry x:Name="txtGoles"
+               Placeholder="Cantidad de goles"
+               Keyboard="Numeric"
+               TextColor="White"
+               PlaceholderColor="Gray"/>
+
+        <Button Text="Guardar Cambios"
+                BackgroundColor="Gold"
+                TextColor="Black"
+                Clicked="BtnGuardar_Clicked"/>
+
+        <Button Text="Eliminar Goleador"
+                BackgroundColor="Red"
+                TextColor="White"
+                Clicked="BtnEliminar_Clicked"/>
+
+    </StackLayout>
+</ContentPage>

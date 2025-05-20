@@ -1,0 +1,93 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Elite_Soccer.MainPage"
+             BackgroundColor="#e3e3e3"
+             NavigationPage.HasNavigationBar="False">
+
+    <Grid RowDefinitions="Auto, *" Padding="0,40,0,0">
+
+        <!-- Logo -->
+        <Image Grid.Row="0"
+               Source="LOGO1.png"
+               HeightRequest="150"
+               WidthRequest="150"
+               HorizontalOptions="Center"
+               Margin="0,20"/>
+
+        <!-- Contenido -->
+        <Frame Grid.Row="1"
+               Margin="0"
+               BackgroundColor="White"
+               CornerRadius="35"
+               HasShadow="True"
+               Padding="30">
+
+            <StackLayout Spacing="20">
+
+                <Label Text="¡Bienvenido de nuevo!"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#55564f"
+                       HorizontalOptions="Center" />
+
+                <Label Text="Inicia sesión en tu cuenta"
+                       FontSize="16"
+                       TextColor="#55564f"
+                       HorizontalOptions="Center" />
+
+                <Entry x:Name="txtCorreo"
+                       Placeholder="Correo electrónico"
+                       Keyboard="Email"
+                       TextColor="Black"
+                       PlaceholderColor="Gray" />
+
+                <Entry x:Name="txtContrasena"
+                       Placeholder="Contraseña"
+                       IsPassword="True"
+                       TextColor="Black"
+                       PlaceholderColor="Gray" />
+
+                <!-- 🔴 Mensaje de error -->
+                <Label x:Name="lblMensaje"
+                       TextColor="Red"
+                       FontSize="14"
+                       IsVisible="False"
+                       HorizontalOptions="Center" />
+
+                <Button Text="Iniciar sesión"
+                        BackgroundColor="#55564f"
+                        TextColor="White"
+                        CornerRadius="20"
+                        Clicked="BtnIniciarSesion_Clicked" />
+                <!-- 🔄 Indicador de carga -->
+                <ActivityIndicator x:Name="indicadorCarga"
+                   IsVisible="False"
+                   IsRunning="False"
+                   Color="#1C375C"
+                   HeightRequest="30"
+                   HorizontalOptions="Center"/>
+
+
+
+
+                <!-- Enlace a registro -->
+                <StackLayout Orientation="Horizontal"
+                             HorizontalOptions="Center">
+                    <Label Text="¿No tienes cuenta?"
+                           TextColor="Gray"
+                           FontSize="14" />
+                    <Label Text=" Regístrate aquí"
+                           TextColor="#1C375C"
+                           FontAttributes="Bold"
+                           FontSize="14">
+                        <Label.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="RegistroUsuario_Clicked" />
+                        </Label.GestureRecognizers>
+                    </Label>
+                </StackLayout>
+
+            </StackLayout>
+        </Frame>
+    </Grid>
+</ContentPage>
