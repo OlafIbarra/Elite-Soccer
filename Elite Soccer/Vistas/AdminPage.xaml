@@ -157,6 +157,44 @@
                     <Button Text="Guardar Tabla en Firebase" x:Name="btnGuardarTabla" BackgroundColor="#4CAF50" TextColor="White" CornerRadius="25" Clicked="BtnGuardarTabla_Clicked" />
                 </StackLayout>
             </pv:PancakeView>
+
+            <!-- GESTIÓN DE JORNADAS -->
+            <pv:PancakeView BackgroundColor="#1E1E1E" CornerRadius="15" Padding="15">
+                <StackLayout Spacing="10">
+                    <Label Text="Gestor de Jornadas" FontSize="20" TextColor="Gold" HorizontalOptions="Center" />
+
+                    
+
+                    <!-- Lista de jornadas -->
+                    <CollectionView x:Name="collectionJornadas" SelectionMode="None">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Frame BackgroundColor="#2C2C2C" BorderColor="Gold" CornerRadius="10" Padding="10">
+                                    <StackLayout>
+                                        <Label Text="{Binding titulo}" FontAttributes="Bold" TextColor="Gold" />
+
+                                        <CollectionView ItemsSource="{Binding PartidoJornada}" SelectionMode="None">
+                                            <CollectionView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" Padding="5">
+                                                        <Label Text="{Binding Local}" TextColor="White" />
+                                                        <Entry Text="{Binding Visitante}" WidthRequest="40" Keyboard="Numeric" TextColor="White" Grid.Column="1" />
+                                                        <Entry Text="{Binding GF_Local}" WidthRequest="40" Keyboard="Numeric" TextColor="White" Grid.Column="2" />
+                                                        <Label Text="{Binding GF_Visitante}" TextColor="White" Grid.Column="3" />
+                                                    </Grid>
+                                                </DataTemplate>
+                                            </CollectionView.ItemTemplate>
+                                        </CollectionView>
+
+                                    </StackLayout>
+                                </Frame>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </StackLayout>
+            </pv:PancakeView>
+
+
         </StackLayout>
     </ScrollView>
 </ContentPage>

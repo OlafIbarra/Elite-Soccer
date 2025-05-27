@@ -1,13 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:pv="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
              x:Class="Elite_Soccer.Vistas.CalendarioPage"
              BackgroundColor="#111111"
-             Title="Calendario"
              NavigationPage.HasNavigationBar="False">
 
     <StackLayout Spacing="20" Padding="20">
-
         <!-- Botón de regreso -->
         <Image Source="volver.png"
                HeightRequest="30"
@@ -24,18 +23,16 @@
                FontAttributes="Bold"
                HorizontalOptions="Center"/>
 
-        <ListView x:Name="listaCalendario"
-                  BackgroundColor="Transparent"
-                  SeparatorColor="Gold"
-                  HasUnevenRows="True">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextCell Text="{Binding descripcion}"
-                              TextColor="White"
-                              DetailColor="Gray"/>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
+        <!-- Botones de categoría -->
+        <Grid ColumnDefinitions="*,*">
+            <Button Text="VARONIL" x:Name="btnVaronil" BackgroundColor="#252525" TextColor="Gold" Clicked="BtnCategoria_Clicked"/>
+            <Button Text="FEMENIL" x:Name="btnFemenil" Grid.Column="1" BackgroundColor="#1E1E1E" TextColor="White" Clicked="BtnCategoria_Clicked"/>
+        </Grid>
+
+        <!-- Lista de jornadas -->
+        <ScrollView>
+            <StackLayout x:Name="contenedorJornadas" Spacing="20"/>
+        </ScrollView>
 
     </StackLayout>
 </ContentPage>

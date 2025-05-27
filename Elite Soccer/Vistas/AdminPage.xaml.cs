@@ -49,6 +49,7 @@ namespace Elite_Soccer.Vistas
             await CargarTablaExistente();
             await CargarGoleadores();
             await CargarPartidos();
+            await CargarJornadasManual();
 
         }
 
@@ -479,6 +480,90 @@ namespace Elite_Soccer.Vistas
                 pickerEquipoG.ItemsSource = equiposFemenil;
             }
         }
+
+
+        public class PartidoJornada
+        {
+            public string Local { get; set; }
+            public string Visitante { get; set; }
+            public int GF_Local { get; set; } = 0;
+            public int GF_Visitante { get; set; } = 0;
+            public string Fecha { get; set; }
+            public string Hora { get; set; }
+        }
+
+        public class Jornada
+        {
+            public int Numero { get; set; }
+            public List<PartidoJornada> Partidos { get; set; } = new List<PartidoJornada>();
+        }
+
+        private Dictionary<string, List<Jornada>> _jornadasPorCategoria = new Dictionary<string, List<Jornada>>
+        {
+            ["Varonil"] = new List<Jornada>(),
+            ["Femenil"] = new List<Jornada>()
+        };
+
+        private async Task CargarJornadasManual()
+        {
+            var jornadas = new List<Jornada>();
+
+            var jornada1 = new Jornada
+            {
+                Numero = 1,
+                Partidos = new List<PartidoJornada> {
+        new PartidoJornada { Local = "DVO. TACHIRA", Visitante = "FENIX", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "TAZOS D.", Visitante = "BRASIL", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "PURO CHACOTEO", Visitante = "LIVERPOOL", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "MACRO PLAZA", Visitante = "PUMAS", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "TAZOS D.", Visitante = "MAQUINITA", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "PUEBLA", Visitante = "REAL PRIMERA", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "BOCA JUNIOR", Visitante = "ALEMANIA", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "JUVENTUS", Visitante = "TEMERARIOS", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "UNAM", Visitante = "VALENCIA", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "SAN RAFA", Visitante = "MAQUINITA", Fecha = "2025-05-27", Hora = "20:00" },
+        new PartidoJornada { Local = "TDR", Visitante = "AJAX", Fecha = "2025-05-27", Hora = "20:00" },
+    }
+            };
+
+            var jornada2 = new Jornada
+            {
+                Numero = 2,
+                Partidos = new List<PartidoJornada> {
+        new PartidoJornada { Local = "AJAX", Visitante = "PUMAS", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "VALENCIA", Visitante = "UNAM", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "PURO CHACOTEO", Visitante = "TEMERARIOS", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "MACRO PLAZA", Visitante = "MAQUINITA", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "PUEBLA", Visitante = "FENIX", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "JUVENTUS", Visitante = "DVO. TACHIRA", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "TAZOS D", Visitante = "BOCA JUNIOR", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "SAN RAFA", Visitante = "REAL PRIMERA", Fecha = "2025-06-03", Hora = "20:00" },
+        new PartidoJornada { Local = "TDR", Visitante = "ALEMANIA", Fecha = "2025-06-03", Hora = "20:00" },
+    }
+            };
+
+            jornadas.Add(jornada1);
+            jornadas.Add(jornada2);
+
+            _jornadasPorCategoria["Varonil"] = jornadas;
+            await GuardarJornadasEnFirebase("Varonil");
+            await DisplayAlert("Éxito", "Jornadas 1 y 2 agregadas", "OK");
+        }
+
+        private async Task GuardarJornadasEnFirebase(string categoria)
+        {
+            string ruta = $"jornadas_{categoria.ToLower()}";
+            string url = $"{FirebaseDatabaseUrl}/{ruta}.json?auth={MainPage.IdTokenUsuario}";
+            var json = JsonConvert.SerializeObject(_jornadasPorCategoria[categoria]);
+
+            using (var cliente = new HttpClient())
+            {
+                await cliente.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+            }
+        }
+
+
+
         private async void Volver_Clicked(object sender, EventArgs e)
         {
             await Navigation.PopAsync();

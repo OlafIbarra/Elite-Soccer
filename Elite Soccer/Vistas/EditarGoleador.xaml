@@ -7,6 +7,29 @@
              BackgroundColor="#111111">
 
     <StackLayout Padding="20" Spacing="15">
+        <!-- Encabezado -->
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Image Source="volver.png"
+HeightRequest="30"
+WidthRequest="30"
+Grid.Column="0">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="Volver_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
+
+            <Label Text="Editar Goleador ⚽"
+FontSize="22"
+TextColor="Gold"
+FontAttributes="Bold"
+HorizontalOptions="Center"
+Grid.Column="1"/>
+        </Grid>
 
         <Label Text="Editar Goleador"
                FontSize="24"

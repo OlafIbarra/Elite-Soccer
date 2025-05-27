@@ -54,5 +54,9 @@ namespace Elite_Soccer.Vistas
                 await Navigation.PopAsync();
             }
         }
+        private async void Volver_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
     }
 }
