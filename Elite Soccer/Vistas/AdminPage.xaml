@@ -33,41 +33,9 @@
            HorizontalOptions="Center"
            Grid.Column="1"/>
             </Grid>
+            <!-- Encabezado FIN-->
 
-            <!-- REGISTRAR PARTIDO -->
-            <pv:PancakeView BackgroundColor="#1E1E1E" CornerRadius="15" Padding="15">
-                <StackLayout Spacing="10">
-                    <Label Text="Registrar Partido" FontSize="20" TextColor="Gold" HorizontalOptions="Center" />
-
-                    <Picker x:Name="pickerCategoria" Title="Categoría" TitleColor="Gray" TextColor="White" SelectedIndexChanged="pickerCategoria_SelectedIndexChanged">
-                        <Picker.Items>
-                            <x:String>Varonil</x:String>
-                            <x:String>Femenil</x:String>
-                        </Picker.Items>
-                    </Picker>
-
-                    <Picker x:Name="pickerEquipoLocal" Title="Equipo Local" TitleColor="Gray" TextColor="White" />
-                    <Picker x:Name="pickerEquipoVisitante" Title="Equipo Visitante" TitleColor="Gray" TextColor="White" />
-                    <DatePicker x:Name="fechaPartido" TextColor="White" MinimumDate="{x:Static sys:DateTime.Today}" />
-                    <TimePicker x:Name="horaPartido" TextColor="White" />
-
-                    <Button Text="Registrar Partido" BackgroundColor="Gold" TextColor="Black" CornerRadius="20" Clicked="BtnRegistrarPartido_Clicked" />
-                </StackLayout>
-            </pv:PancakeView>
-
-            <!-- PARTIDOS REGISTRADOS -->
-            <pv:PancakeView BackgroundColor="#1E1E1E" CornerRadius="15"  Padding="10">
-                <StackLayout>
-                    <Label Text="Partidos Registrados" FontSize="18" TextColor="Gold" />
-                    <ListView x:Name="listaPartidos" HasUnevenRows="True" BackgroundColor="Transparent" SeparatorColor="Gold" ItemSelected="ListaPartidos_ItemSelected">
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <TextCell Text="{Binding descripcion}" TextColor="White" DetailColor="Gray" />
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
-                    </ListView>
-                </StackLayout>
-            </pv:PancakeView>
+            
 
             <!-- GOLEADORES -->
             <pv:PancakeView BackgroundColor="#1E1E1E" CornerRadius="15" Padding="15">
@@ -93,6 +61,8 @@
                     </ListView>
                 </StackLayout>
             </pv:PancakeView>
+            <!-- GOLEADORES -->
+            
 
             <!-- TABLA DE POSICIONES -->
             <pv:PancakeView BackgroundColor="#1E1E1E" CornerRadius="15" Padding="15">
@@ -135,64 +105,101 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                     </ScrollView>
-                    <!-- Edición Rápida -->
-                    <Label Text="Editar partido (APRETAR ALGUN EQUIPO DE ARRIBA EN LA TABLA)" TextColor="Gold" FontAttributes="Bold" />
-                    <Grid ColumnDefinitions="*,*" Padding="10">
-                        <Entry x:Name="entryEditarGF" Placeholder="GF" Keyboard="Numeric" TextColor="White" BackgroundColor="#333333" Grid.Column="0" />
-                        <Entry x:Name="entryEditarGC" Placeholder="GC" Keyboard="Numeric" TextColor="White" BackgroundColor="#333333" Grid.Column="1" />
-                    </Grid>
-
-                    <Button Text="Guardar Cambios" BackgroundColor="#4CAF50" TextColor="White" CornerRadius="20" Clicked="BtnGuardarCambios_Clicked" />
-
-                    <!-- Agregar Partido Manual -->
-                    <Label Text="Agregar Partido" TextColor="Gold" FontAttributes="Bold" />
-                    <Picker x:Name="pickerEquipoTabla" Title="Seleccionar equipo" TitleColor="Gray" TextColor="White" />
-
-                    <Grid ColumnDefinitions="*,*" Padding="10">
-                        <Entry x:Name="entryNuevoGF" Placeholder="GF" Keyboard="Numeric" TextColor="White" BackgroundColor="#333333" Grid.Column="0" />
-                        <Entry x:Name="entryNuevoGC" Placeholder="GC" Keyboard="Numeric" TextColor="White" BackgroundColor="#333333" Grid.Column="1" />
-                    </Grid>
-                    <Button Text="Agregar Partido" BackgroundColor="Gold" TextColor="Black" CornerRadius="20" Clicked="BtnAgregarPartido_Clicked" />
-
-                    <Button Text="Guardar Tabla en Firebase" x:Name="btnGuardarTabla" BackgroundColor="#4CAF50" TextColor="White" CornerRadius="25" Clicked="BtnGuardarTabla_Clicked" />
                 </StackLayout>
             </pv:PancakeView>
 
-            <!-- GESTIÓN DE JORNADAS -->
-            <pv:PancakeView BackgroundColor="#1E1E1E" CornerRadius="15" Padding="15">
-                <StackLayout Spacing="10">
-                    <Label Text="Gestor de Jornadas" FontSize="20" TextColor="Gold" HorizontalOptions="Center" />
+            <!-- TABLA DE POSICIONES FIN-->
 
-                    
 
-                    <!-- Lista de jornadas -->
-                    <CollectionView x:Name="collectionJornadas" SelectionMode="None">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Frame BackgroundColor="#2C2C2C" BorderColor="Gold" CornerRadius="10" Padding="10">
-                                    <StackLayout>
-                                        <Label Text="{Binding titulo}" FontAttributes="Bold" TextColor="Gold" />
+            <!-- AGREGAR JORNADA CON PARTIDO -->
+            <Frame BackgroundColor="#1E1E1E" CornerRadius="20" Padding="15" Margin="0,20,0,0">
+                <StackLayout>
+                    <Label Text="Agregar Jornada" TextColor="Gold" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
 
-                                        <CollectionView ItemsSource="{Binding PartidoJornada}" SelectionMode="None">
-                                            <CollectionView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <Grid ColumnDefinitions="*,Auto,Auto,Auto" Padding="5">
-                                                        <Label Text="{Binding Local}" TextColor="White" />
-                                                        <Entry Text="{Binding Visitante}" WidthRequest="40" Keyboard="Numeric" TextColor="White" Grid.Column="1" />
-                                                        <Entry Text="{Binding GF_Local}" WidthRequest="40" Keyboard="Numeric" TextColor="White" Grid.Column="2" />
-                                                        <Label Text="{Binding GF_Visitante}" TextColor="White" Grid.Column="3" />
-                                                    </Grid>
-                                                </DataTemplate>
-                                            </CollectionView.ItemTemplate>
-                                        </CollectionView>
+                    <Label Text="Categoría" TextColor="White"/>
+                    <Picker x:Name="pickerCategoria" Title="Selecciona categoría">
+                        <Picker.Items>
+                            <x:String>Varonil</x:String>
+                            <x:String>Femenil</x:String>
+                        </Picker.Items>
+                    </Picker>
 
-                                    </StackLayout>
-                                </Frame>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <Label Text="Número de Jornada" TextColor="White"/>
+                    <Picker x:Name="pickerNumeroJornada" Title="Selecciona jornada" />
+
+                    <Label Text="Agregar Partido" TextColor="White" Margin="0,10,0,0"/>
+
+                    <Label Text="Equipo Local" TextColor="White"/>
+                    <Picker x:Name="pickerLocal" Title="Selecciona equipo local" />
+
+                    <Label Text="Equipo Visitante" TextColor="White"/>
+                    <Picker x:Name="pickerVisitante" Title="Selecciona equipo visitante" />
+
+                    <Label Text="Fecha" TextColor="White"/>
+                    <DatePicker x:Name="datePickerPartido" TextColor="White" BackgroundColor="#252525" />
+
+                    <Label Text="Hora" TextColor="White"/>
+                    <TimePicker x:Name="timePickerPartido" TextColor="White" BackgroundColor="#252525" />
+
+                    <Button Text="Agregar Partido a la Jornada" BackgroundColor="Gold" TextColor="Black" Clicked="AgregarPartido_Clicked" Margin="0,10,0,0"/>
+
+                    <Label Text="Partidos agregados:" TextColor="Gold" FontAttributes="Bold" Margin="0,10,0,0"/>
+                    <StackLayout x:Name="stackPartidosAgregados" Spacing="5" />
+
+                    <Button Text="Guardar Jornada" BackgroundColor="Gold" TextColor="Black" Clicked="GuardarJornada_Clicked" Margin="0,20,0,0"/>
                 </StackLayout>
-            </pv:PancakeView>
+            </Frame>
+            <!-- AGREGAR JORNADA CON PARTIDO FIN -->
+
+            <!-- EDITAR JORNADA  PARTIDO -->
+            <Frame BackgroundColor="#1E1E1E" CornerRadius="20" Padding="15" Margin="0,20,0,0" HeightRequest="500">
+                <StackLayout>
+                    <Label Text="Editar Jornada Existente" TextColor="Gold" FontSize="20" FontAttributes="Bold" HorizontalOptions="Center"/>
+
+                    <!-- Selección de categoría -->
+                    <Label Text="Categoría" TextColor="White"/>
+                    <Picker x:Name="pickerCategoriaEditar" Title="Selecciona categoría" SelectedIndexChanged="pickerCategoriaEditar_SelectedIndexChanged">
+                        <Picker.Items>
+                            <x:String>Varonil</x:String>
+                            <x:String>Femenil</x:String>
+                        </Picker.Items>
+                    </Picker>
+
+                    <!-- Selección de jornada -->
+                    <Label Text="Número de Jornada" TextColor="White"/>
+                    <Picker x:Name="pickerJornadaEditar" Title="Selecciona jornada" SelectedIndexChanged="pickerJornadaEditar_SelectedIndexChanged"/>
+
+                    <!-- Lista de partidos para editar -->
+                    <Label Text="Partidos en esta jornada:" TextColor="Gold" FontAttributes="Bold" Margin="0,10,0,0"/>
+                 <StackLayout x:Name="stackPartidosEditar" Spacing="10" />
+
+
+                    <StackLayout Orientation="Horizontal" HorizontalOptions="Center" Spacing="20">
+                        <Button Text="Anterior" 
+                        x:Name="btnAnteriorPartido" 
+                        Clicked="btnAnteriorPartido_Clicked"
+                        BackgroundColor="DarkSlateBlue"
+                        TextColor="White"
+                        IsVisible="False"/>
+
+                        <Button Text="Siguiente" 
+                        x:Name="btnSiguientePartido" 
+                        Clicked="btnSiguientePartido_Clicked"
+                        BackgroundColor="DarkSlateBlue"
+                        TextColor="White"
+                        IsVisible="False"/>
+                    </StackLayout>
+
+                    <Button Text="Guardar Resultado" 
+                     x:Name="btnGuardarResultado" 
+                     Clicked="btnGuardarResultado_Clicked"
+                     BackgroundColor="Green" 
+                     TextColor="White" 
+                     FontAttributes="Bold" 
+                     IsVisible="False"/>
+
+                </StackLayout>
+            </Frame>
 
 
         </StackLayout>

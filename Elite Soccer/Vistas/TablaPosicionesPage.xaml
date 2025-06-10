@@ -9,28 +9,21 @@
     <StackLayout Padding="20" Spacing="15">
 
         <!-- Encabezado -->
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Botón de regreso -->
+        <Image Source="volver.png"
+       HeightRequest="30"
+       WidthRequest="30"
+       HorizontalOptions="Start">
+            <Image.GestureRecognizers>
+                <TapGestureRecognizer Tapped="Volver_Clicked"/>
+            </Image.GestureRecognizers>
+        </Image>
 
-            <Image Source="volver.png"
-                   HeightRequest="30"
-                   WidthRequest="30"
-                   Grid.Column="0">
-                <Image.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="Volver_Clicked"/>
-                </Image.GestureRecognizers>
-            </Image>
-
-            <Label Text="Tabla de Posiciones"
-                   FontSize="22"
-                   TextColor="Gold"
-                   FontAttributes="Bold"
-                   HorizontalOptions="Center"
-                   Grid.Column="1"/>
-        </Grid>
+        <Label Text="TABLA DE POSICIONES"
+       FontSize="22"
+       TextColor="Gold"
+       FontAttributes="Bold"
+       HorizontalOptions="Center"/>
 
         <!-- Selector de categoría -->
         <Grid ColumnDefinitions="*,*" Margin="0,10,0,0">

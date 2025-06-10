@@ -31,12 +31,11 @@ namespace Elite_Soccer.Vistas
 
                     if (dictGoleadores != null)
                     {
-                        contenedorGoleadores.Children.Clear();
+                        contenedorFemenil.Children.Clear();
+                        contenedorVaronil.Children.Clear();
 
-                        foreach (var item in dictGoleadores)
+                        foreach (var item in dictGoleadores.Values)
                         {
-                            var goleador = item.Value;
-
                             var tarjeta = new Frame
                             {
                                 BackgroundColor = Color.FromHex("#1A1A1A"),
@@ -47,31 +46,35 @@ namespace Elite_Soccer.Vistas
                                 {
                                     Spacing = 5,
                                     Children =
-                                    {
-                                        new Label
-                                        {
-                                            Text = goleador.nombre,
-                                            FontAttributes = FontAttributes.Bold,
-                                            FontSize = 18,
-                                            TextColor = Color.White
-                                        },
-                                        new Label
-                                        {
-                                            Text = $"{goleador.equipo} - {goleador.categoria}",
-                                            FontSize = 14,
-                                            TextColor = Color.Gray
-                                        },
-                                        new Label
-                                        {
-                                            Text = $"Goles: {goleador.goles}",
-                                            FontSize = 14,
-                                            TextColor = Color.Gold
-                                        }
-                                    }
+                            {
+                                new Label
+                                {
+                                    Text = item.nombre,
+                                    FontAttributes = FontAttributes.Bold,
+                                    FontSize = 18,
+                                    TextColor = Color.White
+                                },
+                                new Label
+                                {
+                                    Text = $"{item.equipo} - {item.categoria}",
+                                    FontSize = 14,
+                                    TextColor = Color.Gray
+                                },
+                                new Label
+                                {
+                                    Text = $"Goles: {item.goles}",
+                                    FontSize = 14,
+                                    TextColor = Color.Gold
+                                }
+                            }
                                 }
                             };
 
-                            contenedorGoleadores.Children.Add(tarjeta);
+                            // Clasificar por categoría
+                            if (item.categoria.ToLower() == "femenil")
+                                contenedorFemenil.Children.Add(tarjeta);
+                            else if (item.categoria.ToLower() == "varonil")
+                                contenedorVaronil.Children.Add(tarjeta);
                         }
                     }
                     else
@@ -85,6 +88,7 @@ namespace Elite_Soccer.Vistas
                 }
             }
         }
+
 
         private async void Volver_Clicked(object sender, EventArgs e)
         {

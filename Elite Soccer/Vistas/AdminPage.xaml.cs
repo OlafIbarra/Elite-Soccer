@@ -1,19 +1,51 @@
-﻿using System;
+﻿using Firebase.Database;
+using Firebase.Database.Query;
+using System.Threading.Tasks;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Xamarin.Forms;
 using Elite_Soccer.Modelo;
 using System.Linq;
+using System.Globalization;
+using static Elite_Soccer.Vistas.CalendarioPage;
+using Xamarin.Essentials;
 
 namespace Elite_Soccer.Vistas
 {
+
     public partial class AdminPage : ContentPage
     {
 
         private const string FirebaseDatabaseUrl = "https://clubeliteapp-default-rtdb.firebaseio.com";
+        private FirebaseClient firebase;
+        public AdminPage()
+        {
+            InitializeComponent();
+            CargarPickerJornadas();
+        }
+
+        protected override async void OnAppearing()
+        {
+            base.OnAppearing();
+            await CargarTablaExistente();
+            await CargarGoleadores();
+            firebase = new FirebaseClient(
+                FirebaseDatabaseUrl,
+                new FirebaseOptions
+                {
+                    AuthTokenAsyncFactory = () => Task.FromResult(MainPage.IdTokenUsuario)
+                });
+        }
+
+
+
+
+        /************TABLA DE POSICIONES *********/
+
+
 
         // Modelo para tabla de posiciones
         public class EquipoTabla
@@ -36,28 +68,7 @@ namespace Elite_Soccer.Vistas
             ["Femenil"] = new List<EquipoTabla>()
         };
         private string _categoriaTablaActual = "Varonil";
-
-        public AdminPage()
-        {
-            InitializeComponent();
-            InicializarTablaPosiciones();
-        }
-
-        protected override async void OnAppearing()
-        {
-            base.OnAppearing();
-            await CargarTablaExistente();
-            await CargarGoleadores();
-            await CargarPartidos();
-            await CargarJornadasManual();
-
-        }
-
-        private void InicializarTablaPosiciones()
-        {
-            pickerEquipoTabla.ItemsSource = equiposVaronil;
-        }
-
+       
         private async Task CargarTablaExistente()
         {
             try
@@ -94,14 +105,10 @@ namespace Elite_Soccer.Vistas
         {
             var btn = (Button)sender;
             _categoriaTablaActual = btn.Text == "VARONIL" ? "Varonil" : "Femenil";
-
             btnTablaVaronil.BackgroundColor = _categoriaTablaActual == "Varonil" ? Color.FromHex("#252525") : Color.FromHex("#1E1E1E");
             btnTablaVaronil.TextColor = _categoriaTablaActual == "Varonil" ? Color.FromHex("Gold") : Color.White;
-
             btnTablaFemenil.BackgroundColor = _categoriaTablaActual == "Femenil" ? Color.FromHex("#252525") : Color.FromHex("#1E1E1E");
             btnTablaFemenil.TextColor = _categoriaTablaActual == "Femenil" ? Color.FromHex("Gold") : Color.White;
-
-            pickerEquipoTabla.ItemsSource = _categoriaTablaActual == "Varonil" ? equiposVaronil : equiposFemenil;
             ActualizarVistaTabla();
         }
 
@@ -126,70 +133,7 @@ namespace Elite_Soccer.Vistas
             // El binding automático se encarga de mostrar el panel de edición
         }
 
-        private async void BtnGuardarCambios_Clicked(object sender, EventArgs e)
-        {
-            if (collectionTabla.SelectedItem is EquipoTabla equipo)
-            {
-                if (!int.TryParse(entryEditarGF.Text, out int gf) || !int.TryParse(entryEditarGC.Text, out int gc))
-                {
-                    await DisplayAlert("Error", "Ingresa valores válidos", "OK");
-                    return;
-                }
-
-                // Resetear los valores anteriores antes de recalcular
-                equipo.JG = 0;
-                equipo.JE = 0;
-                equipo.JP = 0;
-                equipo.JJ = 1; // Siempre se cuenta como 1 juego jugado
-                equipo.GF = gf;
-                equipo.GC = gc;
-
-                if (gf > gc) equipo.JG = 1;
-                else if (gf < gc) equipo.JP = 1;
-                else equipo.JE = 1;
-
-                // DIF y PTS se recalculan automáticamente desde las propiedades
-                ActualizarVistaTabla();
-                collectionTabla.SelectedItem = null;
-            }
-        }
-
-
-        private async void BtnAgregarPartido_Clicked(object sender, EventArgs e)
-        {
-            if (pickerEquipoTabla.SelectedItem == null)
-            {
-                await DisplayAlert("Error", "Selecciona un equipo", "OK");
-                return;
-            }
-
-            if (!int.TryParse(entryNuevoGF.Text, out int gf) || !int.TryParse(entryNuevoGC.Text, out int gc))
-            {
-                await DisplayAlert("Error", "Ingresa valores válidos para GF y GC", "OK");
-                return;
-            }
-
-            var nombreEquipo = pickerEquipoTabla.SelectedItem.ToString();
-            var tablaActual = _tablasPorCategoria[_categoriaTablaActual];
-
-            var equipo = tablaActual.FirstOrDefault(x => x.Equipo == nombreEquipo);
-            if (equipo == null)
-            {
-                equipo = new EquipoTabla { Equipo = nombreEquipo };
-                tablaActual.Add(equipo);
-            }
-
-            equipo.JJ++;
-            equipo.GF += gf;
-            equipo.GC += gc;
-
-            if (gf > gc) equipo.JG++;
-            else if (gf < gc) equipo.JP++;
-            else equipo.JE++;
-
-            ActualizarVistaTabla();
-            entryNuevoGF.Text = entryNuevoGC.Text = string.Empty;
-        }
+        
 
         private async void BtnGuardarTabla_Clicked(object sender, EventArgs e)
         {
@@ -232,136 +176,499 @@ namespace Elite_Soccer.Vistas
             "TEAM INFIERNO", "MAJESTIC", "MIAMI", "BRASIL", "CHELSEA",
             "BARCELONA", "FENIX", "PUMAS", "TBT"
         };
+        /************TABLA DE POSICIONES FIN*********/
 
-        private async Task CargarPartidos()
+
+   
+        
+        private List<Partido> partidosTemp = new List<Partido>();
+
+        public class Partido
         {
-            if (string.IsNullOrEmpty(MainPage.IdTokenUsuario))
+            public string Local { get; set; }
+            public string Visitante { get; set; }
+            public string Fecha { get; set; }
+            public string Hora { get; set; }
+            public int GolesLocal { get; set; }
+            public int GolesVisitante { get; set; }
+            public string Categoria { get; set; }
+
+            public string DescripcionVisible => $"{Local} vs {Visitante} ({Fecha})"; // Usado en el Picker
+
+            public override string ToString() => DescripcionVisible;
+
+        }
+
+
+        public class Jornada
+        {
+            public int Numero { get; set; }
+            public string Categoria { get; set; }
+            public List<Partido> Partidos { get; set; } = new List<Partido>();
+        }
+
+
+
+        private void CargarPickerJornadas()
+        {
+            for (int i = 1; i <= 20; i++)
             {
-                await DisplayAlert("Error", "Sesión no válida. Por favor, inicia sesión nuevamente.", "OK");
-                await Navigation.PopToRootAsync();
-                return;
+                pickerNumeroJornada.Items.Add(i.ToString());
             }
 
-            using (HttpClient cliente = new HttpClient())
-            {
-                string url = $"{FirebaseDatabaseUrl}/partidos.json?auth={MainPage.IdTokenUsuario}";
-                HttpResponseMessage respuesta = await cliente.GetAsync(url);
-
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    string json = await respuesta.Content.ReadAsStringAsync();
-                    var partidosDict = JsonConvert.DeserializeObject<Dictionary<string, Partido>>(json);
-
-                    if (partidosDict != null)
-                    {
-                        var lista = new List<Partido>();
-
-                        foreach (var item in partidosDict)
-                        {
-                            item.Value.IdFirebase = item.Key;
-                            lista.Add(item.Value);
-                        }
-
-
-                        listaPartidos.ItemsSource = null;
-                        listaPartidos.ItemsSource = lista.Count > 0 ? new List<Partido>(lista) : new List<Partido>();
-
-                    }
-                }
-                else
-                {
-                    await DisplayAlert("Error", "No se pudieron cargar los partidos", "OK");
-                }
-            }
+            pickerCategoria.SelectedIndexChanged += pickerCategoria_SelectedIndexChanged;
         }
 
         private void pickerCategoria_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var categoriaSeleccionada = pickerCategoria.SelectedItem as string;
+            string categoriaSeleccionada = pickerCategoria.SelectedItem as string;
 
             if (categoriaSeleccionada == "Varonil")
             {
-                pickerEquipoLocal.ItemsSource = equiposVaronil;
-                pickerEquipoVisitante.ItemsSource = equiposVaronil;
+                pickerLocal.ItemsSource = equiposVaronil;
+                pickerVisitante.ItemsSource = equiposVaronil;
             }
             else if (categoriaSeleccionada == "Femenil")
             {
-                pickerEquipoLocal.ItemsSource = equiposFemenil;
-                pickerEquipoVisitante.ItemsSource = equiposFemenil;
+                pickerLocal.ItemsSource = equiposFemenil;
+                pickerVisitante.ItemsSource = equiposFemenil;
             }
         }
 
-        private async void BtnRegistrarPartido_Clicked(object sender, EventArgs e)
+        private void AgregarPartido_Clicked(object sender, EventArgs e)
         {
-            string categoria = pickerCategoria.SelectedItem as string;
-            string equipoLocal = pickerEquipoLocal.SelectedItem as string;
-            string equipoVisitante = pickerEquipoVisitante.SelectedItem as string;
-            DateTime fecha = fechaPartido.Date;
-            TimeSpan hora = horaPartido.Time;
-
-            if (string.IsNullOrWhiteSpace(categoria) ||
-                string.IsNullOrWhiteSpace(equipoLocal) ||
-                string.IsNullOrWhiteSpace(equipoVisitante))
+            if (pickerLocal.SelectedIndex == -1 || pickerVisitante.SelectedIndex == -1)
             {
-                await DisplayAlert("Error", "Todos los campos son obligatorios", "OK");
+                DisplayAlert("Error", "Seleccione equipos local y visitante.", "OK");
                 return;
             }
 
             var partido = new Partido
             {
-                equipoLocal = equipoLocal,
-                equipoVisitante = equipoVisitante,
-                categoria = categoria,
-                fecha = fecha.ToString("yyyy-MM-dd"),
-                hora = hora.ToString(@"hh\:mm")
+                Categoria = pickerCategoria.SelectedItem?.ToString() ?? "Varonil",
+                Local = pickerLocal.SelectedItem.ToString(),
+                Visitante = pickerVisitante.SelectedItem.ToString(),
+                Fecha = datePickerPartido.Date.ToString("yyyy-MM-dd"),
+                Hora = timePickerPartido.Time.ToString(@"hh\:mm")
             };
 
-            string json = JsonConvert.SerializeObject(partido);
-            var contenido = new StringContent(json, Encoding.UTF8, "application/json");
+            partidosTemp.Add(partido);
+            MostrarPartidosAgregados();
 
-            using (HttpClient cliente = new HttpClient())
+            // Limpiar pickers
+            pickerLocal.SelectedIndex = -1;
+            pickerVisitante.SelectedIndex = -1;
+            datePickerPartido.Date = DateTime.Today;
+            timePickerPartido.Time = new TimeSpan(0, 0, 0);
+        }
+
+        private void MostrarPartidosAgregados()
+        {
+            stackPartidosAgregados.Children.Clear();
+            foreach (var partido in partidosTemp)
             {
-                string url = $"{FirebaseDatabaseUrl}/partidos.json?auth={MainPage.IdTokenUsuario}";
-                HttpResponseMessage respuesta = await cliente.PostAsync(url, contenido);
-
-                if (respuesta.IsSuccessStatusCode)
+                stackPartidosAgregados.Children.Add(new Label
                 {
-                    await DisplayAlert("Éxito", "Partido registrado exitosamente", "OK");
-                    LimpiarCampos();
-                    await CargarPartidos();
+                    Text = $"{partido.Local} vs {partido.Visitante} - {partido.Fecha} {partido.Hora}",
+                    TextColor = Color.White,
+                    FontSize = 14
+                });
+            }
+        }
+
+        private async void GuardarJornada_Clicked(object sender, EventArgs e)
+        {
+            if (pickerNumeroJornada.SelectedIndex == -1)
+            {
+                await DisplayAlert("Error", "Seleccione un número de jornada.", "OK");
+                return;
+            }
+
+            if (partidosTemp.Count == 0)
+            {
+                await DisplayAlert("Error", "Agregue al menos un partido.", "OK");
+                return;
+            }
+
+            int numeroJornada = int.Parse(pickerNumeroJornada.SelectedItem.ToString());
+
+            Jornada jornada = new Jornada
+            {
+                Numero = numeroJornada,
+                Categoria = pickerCategoria.SelectedItem?.ToString() ?? "Varonil",
+                Partidos = partidosTemp ?? new List<Partido>()
+            };
+
+
+            try
+            {
+                string categoriaSeleccionada = pickerCategoria.SelectedItem?.ToString() ?? "varonil";
+                string ruta = categoriaSeleccionada.ToLower() == "femenil" ? "jornadas_femenil" : "jornadas_varonil";
+                string url = $"{FirebaseDatabaseUrl}/{ruta}/{numeroJornada - 1}.json?auth={MainPage.IdTokenUsuario}";
+
+                var json = JsonConvert.SerializeObject(jornada);
+                using (var cliente = new HttpClient())
+                {
+                    var respuesta = await cliente.PutAsync(url, new StringContent(json));
+                    if (respuesta.IsSuccessStatusCode)
+                    {
+                        await DisplayAlert("Éxito", "Jornada guardada correctamente.", "OK");
+                        pickerNumeroJornada.SelectedIndex = -1;
+                        pickerLocal.SelectedIndex = -1;
+                        pickerVisitante.SelectedIndex = -1;
+                        pickerCategoria.SelectedIndex = -1;
+                        partidosTemp.Clear();
+                        MostrarPartidosAgregados();
+                    }
+                    else
+                    {
+                        await DisplayAlert("Error", "No se pudo guardar la jornada.", "OK");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", ex.Message, "OK");
+            }
+        }
+
+        private async void pickerCategoriaEditar_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            pickerJornadaEditar.Items.Clear();
+            stackPartidosEditar.Children.Clear();
+
+            string categoria = pickerCategoriaEditar.SelectedItem as string;
+            if (string.IsNullOrEmpty(categoria))
+                return;
+
+            string ruta = categoria.ToLower() == "femenil" ? "jornadas_femenil" : "jornadas_varonil";
+            string url = $"{FirebaseDatabaseUrl}/{ruta}.json?auth={MainPage.IdTokenUsuario}";
+
+            using var cliente = new HttpClient();
+            var respuesta = await cliente.GetAsync(url);
+            if (!respuesta.IsSuccessStatusCode) return;
+
+            string json = await respuesta.Content.ReadAsStringAsync();
+
+            List<Jornada> jornadas = new List<Jornada>();
+
+            try
+            {
+                // Intenta primero como diccionario
+                var dict = JsonConvert.DeserializeObject<Dictionary<string, Jornada>>(json);
+                if (dict != null)
+                {
+                    jornadas = dict.OrderBy(j => int.Parse(j.Key)).Select(j => j.Value).ToList();
+                }
+            }
+            catch
+            {
+                try
+                {
+                    // Si falla, intenta como array
+                    jornadas = JsonConvert.DeserializeObject<List<Jornada>>(json);
+                }
+                catch (Exception ex)
+                {
+                    await DisplayAlert("Error", $"No se pudo leer las jornadas: {ex.Message}", "OK");
+                    return;
+                }
+            }
+
+            for (int i = 0; i < jornadas.Count; i++)
+            {
+                pickerJornadaEditar.Items.Add((i + 1).ToString());
+            }
+        }
+
+        private Jornada jornadaActual;
+        private int partidoActualIndex = 0;
+        private async void pickerJornadaEditar_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            stackPartidosEditar.Children.Clear();
+            btnGuardarResultado.IsVisible = false;
+            partidoActualIndex = 0;
+
+            string categoria = pickerCategoriaEditar.SelectedItem as string;
+            if (pickerJornadaEditar.SelectedIndex == -1 || string.IsNullOrEmpty(categoria))
+                return;
+
+            int numJornada = int.Parse(pickerJornadaEditar.SelectedItem.ToString());
+            string ruta = categoria.ToLower() == "femenil" ? "jornadas_femenil" : "jornadas_varonil";
+            string url = $"{FirebaseDatabaseUrl}/{ruta}/{numJornada - 1}.json?auth={MainPage.IdTokenUsuario}";
+
+            using var cliente = new HttpClient();
+            var respuesta = await cliente.GetAsync(url);
+            if (!respuesta.IsSuccessStatusCode) return;
+
+            string json = await respuesta.Content.ReadAsStringAsync();
+            jornadaActual = JsonConvert.DeserializeObject<Jornada>(json);
+
+            MostrarPartidoActual();
+        }
+        private async void GuardarCambiosJornada_Clicked(object sender, EventArgs e)
+        {
+            if (pickerCategoriaEditar.SelectedIndex == -1 || pickerJornadaEditar.SelectedIndex == -1)
+            {
+                await DisplayAlert("Error", "Selecciona categoría y jornada.", "OK");
+                return;
+            }
+
+            var categoria = pickerCategoriaEditar.SelectedItem.ToString().ToLower();
+            int numJornada = int.Parse(pickerJornadaEditar.SelectedItem.ToString());
+
+            var partidos = new List<Partido>();
+            foreach (var vista in stackPartidosEditar.Children)
+            {
+                if (vista is Grid grid && grid.BindingContext is Tuple<Partido, Entry, Entry> datos)
+                {
+                    var partido = datos.Item1;
+                    int.TryParse(datos.Item2.Text, out int golesLocal);
+                    int.TryParse(datos.Item3.Text, out int golesVisitante);
+
+                    partido.GolesLocal = golesLocal;
+                    partido.GolesVisitante = golesVisitante;
+                    partidos.Add(partido);
+                }
+            }
+
+            Jornada jornada = new Jornada
+            {
+                Numero = numJornada,
+                Categoria = categoria.Equals("femenil") ? "Femenil" : "Varonil",
+                Partidos = partidos
+            };
+
+
+            string ruta = categoria == "femenil" ? "jornadas_femenil" : "jornadas_varonil";
+            string url = $"{FirebaseDatabaseUrl}/{ruta}/{numJornada - 1}.json?auth={MainPage.IdTokenUsuario}";
+            string json = JsonConvert.SerializeObject(jornada);
+
+            using var cliente = new HttpClient();
+            var respuesta = await cliente.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+
+            if (respuesta.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Éxito", "Resultados actualizados.", "OK");
+                // Aquí puedes llamar tu función para actualizar la tabla de posiciones automáticamente
+                ActualizarTablaDePosiciones(categoria); // Asegúrate de tener esta función implementada
+            }
+            else
+            {
+                await DisplayAlert("Error", "No se pudieron guardar los cambios.", "OK");
+            }
+        }
+
+
+        private async void ActualizarTablaDePosiciones(string categoria)
+        {
+            string nombreCategoria = categoria.Equals("femenil", StringComparison.OrdinalIgnoreCase) ? "Femenil" : "Varonil";
+            var tabla = _tablasPorCategoria[nombreCategoria];
+            tabla.Clear();
+
+            // 🔁 Cargar jornadas directamente por HttpClient
+            string rutaJornadas = categoria.ToLower() == "femenil" ? "jornadas_femenil" : "jornadas_varonil";
+            string urlJornadas = $"{FirebaseDatabaseUrl}/{rutaJornadas}.json?auth={MainPage.IdTokenUsuario}";
+
+            using var http = new HttpClient();
+            var response = await http.GetAsync(urlJornadas);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                await DisplayAlert("Error", $"No se pudieron cargar jornadas de {categoria}", "OK");
+                return;
+            }
+
+            string jsonJornadas = await response.Content.ReadAsStringAsync();
+            List<Jornada> jornadas = JsonConvert.DeserializeObject<List<Jornada>>(jsonJornadas) ?? new List<Jornada>();
+
+            // 🔁 Reunir todos los partidos con resultados válidos
+            var partidosTotales = new List<Partido>();
+            foreach (var jornada in jornadas)
+            {
+                if (jornada?.Partidos == null) continue;
+
+                foreach (var partido in jornada.Partidos)
+                {
+                    if (partido.GolesLocal >= 0 && partido.GolesVisitante >= 0)
+                        partidosTotales.Add(partido);
+                }
+            }
+
+            // 🔁 Generar tabla temporal
+            var equiposTemp = new Dictionary<string, EquipoTabla>();
+
+            foreach (var partido in partidosTotales)
+            {
+                if (!equiposTemp.ContainsKey(partido.Local))
+                    equiposTemp[partido.Local] = new EquipoTabla { Equipo = partido.Local };
+                if (!equiposTemp.ContainsKey(partido.Visitante))
+                    equiposTemp[partido.Visitante] = new EquipoTabla { Equipo = partido.Visitante };
+
+                var local = equiposTemp[partido.Local];
+                var visitante = equiposTemp[partido.Visitante];
+
+                local.JJ++;
+                visitante.JJ++;
+
+                local.GF += partido.GolesLocal;
+                local.GC += partido.GolesVisitante;
+
+                visitante.GF += partido.GolesVisitante;
+                visitante.GC += partido.GolesLocal;
+
+                if (partido.GolesLocal > partido.GolesVisitante)
+                {
+                    local.JG++;
+                    visitante.JP++;
+                }
+                else if (partido.GolesLocal < partido.GolesVisitante)
+                {
+                    visitante.JG++;
+                    local.JP++;
                 }
                 else
                 {
-                    await DisplayAlert("Error", "No se pudo registrar el partido", "OK");
+                    local.JE++;
+                    visitante.JE++;
+                }
+            }
+
+            tabla.AddRange(equiposTemp.Values);
+
+            var tablaOrdenada = tabla
+                .OrderByDescending(x => x.PTS)
+                .ThenByDescending(x => x.DIF)
+                .ThenByDescending(x => x.GF)
+                .ToList();
+
+            for (int i = 0; i < tablaOrdenada.Count; i++)
+                tablaOrdenada[i].Posicion = i + 1;
+
+            _tablasPorCategoria[nombreCategoria] = tablaOrdenada;
+
+            // 🔁 Guardar en Firebase
+            try
+            {
+                string rutaGuardar = $"tabla_{nombreCategoria.ToLower()}";
+                string urlGuardar = $"{FirebaseDatabaseUrl}/{rutaGuardar}.json?auth={MainPage.IdTokenUsuario}";
+                string jsonTabla = JsonConvert.SerializeObject(tablaOrdenada);
+
+                var guardar = await http.PutAsync(urlGuardar, new StringContent(jsonTabla, Encoding.UTF8, "application/json"));
+
+                if (!guardar.IsSuccessStatusCode)
+                    await DisplayAlert("Error", $"No se pudo guardar la tabla de posiciones de {nombreCategoria}.", "OK");
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", $"Error al guardar tabla: {ex.Message}", "OK");
+            }
+
+            // 🔁 Refrescar vista
+            if (_categoriaTablaActual == nombreCategoria)
+                ActualizarVistaTabla();
+        }
+
+        private async void btnGuardarResultado_Clicked(object sender, EventArgs e)
+        {
+            if (jornadaActual == null || partidoActualIndex >= jornadaActual.Partidos.Count)
+                return;
+
+            var grid = stackPartidosEditar.Children.FirstOrDefault() as Grid;
+            if (grid?.BindingContext is Tuple<Partido, Entry, Entry> datos)
+            {
+                int.TryParse(datos.Item2.Text, out int golesLocal);
+                int.TryParse(datos.Item3.Text, out int golesVisitante);
+
+                datos.Item1.GolesLocal = golesLocal;
+                datos.Item1.GolesVisitante = golesVisitante;
+
+                string categoria = pickerCategoriaEditar.SelectedItem.ToString().ToLower();
+                int numJornada = int.Parse(pickerJornadaEditar.SelectedItem.ToString());
+                string ruta = categoria == "femenil" ? "jornadas_femenil" : "jornadas_varonil";
+                string url = $"{FirebaseDatabaseUrl}/{ruta}/{numJornada - 1}.json?auth={MainPage.IdTokenUsuario}";
+                string json = JsonConvert.SerializeObject(jornadaActual);
+
+                using var cliente = new HttpClient();
+                var respuesta = await cliente.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
+
+                if (respuesta.IsSuccessStatusCode)
+                {
+                    await DisplayAlert("Éxito", "Resultado guardado correctamente.", "OK");
+
+                    // Actualiza tabla automáticamente
+                    ActualizarTablaDePosiciones(categoria);
+                }
+                else
+                {
+                    await DisplayAlert("Error", "No se pudo guardar el resultado.", "OK");
                 }
             }
         }
-
-        private async void ListaPartidos_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        //BOTONES DE ATRAS Y ADELANTE
+        private void MostrarPartidoActual()
         {
-            if (e.SelectedItem is Partido partidoSeleccionado)
+            stackPartidosEditar.Children.Clear();
+            btnGuardarResultado.IsVisible = false;
+            btnAnteriorPartido.IsVisible = false;
+            btnSiguientePartido.IsVisible = false;
+
+            if (jornadaActual?.Partidos == null || jornadaActual.Partidos.Count == 0 || partidoActualIndex >= jornadaActual.Partidos.Count)
+                return;
+
+            var partido = jornadaActual.Partidos[partidoActualIndex];
+
+            var grid = new Grid { ColumnSpacing = 5 };
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
+            grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+
+            var entryGolesLocal = new Entry { Text = partido.GolesLocal.ToString(), Keyboard = Keyboard.Numeric };
+            var entryGolesVisitante = new Entry { Text = partido.GolesVisitante.ToString(), Keyboard = Keyboard.Numeric };
+
+            grid.Children.Add(new Label { Text = partido.Local }, 0, 0);
+            grid.Children.Add(entryGolesLocal, 1, 0);
+            grid.Children.Add(entryGolesVisitante, 2, 0);
+            grid.Children.Add(new Label { Text = partido.Visitante }, 3, 0);
+
+            grid.BindingContext = new Tuple<Partido, Entry, Entry>(partido, entryGolesLocal, entryGolesVisitante);
+
+            stackPartidosEditar.Children.Add(grid);
+
+            btnGuardarResultado.IsVisible = true;
+            btnAnteriorPartido.IsVisible = partidoActualIndex > 0;
+            btnSiguientePartido.IsVisible = partidoActualIndex < jornadaActual.Partidos.Count - 1;
+        }
+
+        private void btnAnteriorPartido_Clicked(object sender, EventArgs e)
+        {
+            if (partidoActualIndex > 0)
             {
-                ((ListView)sender).SelectedItem = null;
+                partidoActualIndex--;
+                MostrarPartidoActual();
+            }
+        }
 
-
-                var paginaEditar = new EditarPartido(partidoSeleccionado.IdFirebase, partidoSeleccionado);
-                await Navigation.PushAsync(paginaEditar);
-
-
-                await CargarPartidos();
+        private void btnSiguientePartido_Clicked(object sender, EventArgs e)
+        {
+            if (jornadaActual != null && partidoActualIndex < jornadaActual.Partidos.Count - 1)
+            {
+                partidoActualIndex++;
+                MostrarPartidoActual();
             }
         }
 
 
-        private void LimpiarCampos()
-        {
-            pickerCategoria.SelectedIndex = -1;
-            pickerEquipoLocal.ItemsSource = null;
-            pickerEquipoVisitante.ItemsSource = null;
-            fechaPartido.Date = DateTime.Today;
-            horaPartido.Time = TimeSpan.Zero;
-        }
 
+
+        
+
+
+        private async void Volver_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
 
 
         /*********************************GOLEADORES********************************/
@@ -481,92 +788,14 @@ namespace Elite_Soccer.Vistas
             }
         }
 
-
-        public class PartidoJornada
-        {
-            public string Local { get; set; }
-            public string Visitante { get; set; }
-            public int GF_Local { get; set; } = 0;
-            public int GF_Visitante { get; set; } = 0;
-            public string Fecha { get; set; }
-            public string Hora { get; set; }
-        }
-
-        public class Jornada
-        {
-            public int Numero { get; set; }
-            public List<PartidoJornada> Partidos { get; set; } = new List<PartidoJornada>();
-        }
-
-        private Dictionary<string, List<Jornada>> _jornadasPorCategoria = new Dictionary<string, List<Jornada>>
-        {
-            ["Varonil"] = new List<Jornada>(),
-            ["Femenil"] = new List<Jornada>()
-        };
-
-        private async Task CargarJornadasManual()
-        {
-            var jornadas = new List<Jornada>();
-
-            var jornada1 = new Jornada
-            {
-                Numero = 1,
-                Partidos = new List<PartidoJornada> {
-        new PartidoJornada { Local = "DVO. TACHIRA", Visitante = "FENIX", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "TAZOS D.", Visitante = "BRASIL", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "PURO CHACOTEO", Visitante = "LIVERPOOL", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "MACRO PLAZA", Visitante = "PUMAS", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "TAZOS D.", Visitante = "MAQUINITA", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "PUEBLA", Visitante = "REAL PRIMERA", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "BOCA JUNIOR", Visitante = "ALEMANIA", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "JUVENTUS", Visitante = "TEMERARIOS", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "UNAM", Visitante = "VALENCIA", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "SAN RAFA", Visitante = "MAQUINITA", Fecha = "2025-05-27", Hora = "20:00" },
-        new PartidoJornada { Local = "TDR", Visitante = "AJAX", Fecha = "2025-05-27", Hora = "20:00" },
-    }
-            };
-
-            var jornada2 = new Jornada
-            {
-                Numero = 2,
-                Partidos = new List<PartidoJornada> {
-        new PartidoJornada { Local = "AJAX", Visitante = "PUMAS", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "VALENCIA", Visitante = "UNAM", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "PURO CHACOTEO", Visitante = "TEMERARIOS", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "MACRO PLAZA", Visitante = "MAQUINITA", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "PUEBLA", Visitante = "FENIX", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "JUVENTUS", Visitante = "DVO. TACHIRA", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "TAZOS D", Visitante = "BOCA JUNIOR", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "SAN RAFA", Visitante = "REAL PRIMERA", Fecha = "2025-06-03", Hora = "20:00" },
-        new PartidoJornada { Local = "TDR", Visitante = "ALEMANIA", Fecha = "2025-06-03", Hora = "20:00" },
-    }
-            };
-
-            jornadas.Add(jornada1);
-            jornadas.Add(jornada2);
-
-            _jornadasPorCategoria["Varonil"] = jornadas;
-            await GuardarJornadasEnFirebase("Varonil");
-            await DisplayAlert("Éxito", "Jornadas 1 y 2 agregadas", "OK");
-        }
-
-        private async Task GuardarJornadasEnFirebase(string categoria)
-        {
-            string ruta = $"jornadas_{categoria.ToLower()}";
-            string url = $"{FirebaseDatabaseUrl}/{ruta}.json?auth={MainPage.IdTokenUsuario}";
-            var json = JsonConvert.SerializeObject(_jornadasPorCategoria[categoria]);
-
-            using (var cliente = new HttpClient())
-            {
-                await cliente.PutAsync(url, new StringContent(json, Encoding.UTF8, "application/json"));
-            }
-        }
+        /*********************************GOLEADORES fiiiiin********************************/
 
 
 
-        private async void Volver_Clicked(object sender, EventArgs e)
-        {
-            await Navigation.PopAsync();
-        }
+
+        
+
+
     }
 }
+

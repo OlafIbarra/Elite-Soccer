@@ -20,11 +20,12 @@ namespace Elite_Soccer.Vistas
         {
             public string Local { get; set; }
             public string Visitante { get; set; }
-            public int GF_Local { get; set; }
-            public int GF_Visitante { get; set; }
+            public int GolesLocal { get; set; }
+            public int GolesVisitante { get; set; }
             public string Fecha { get; set; }
             public string Hora { get; set; }
         }
+
 
         public class Jornada
         {
@@ -92,24 +93,81 @@ namespace Elite_Soccer.Vistas
                     HorizontalOptions = LayoutOptions.Center
                 });
 
-                foreach (var partido in jornada.Partidos)
+                if (jornada.Partidos != null)
                 {
-                    string marcador = (partido.GF_Local + partido.GF_Visitante) == 0 ?
-                        $"{partido.Fecha} {partido.Hora}" :
-                        $"{partido.GF_Local} - {partido.GF_Visitante}";
-
-                    stack.Children.Add(new Label
+                    foreach (var partido in jornada.Partidos)
                     {
-                        Text = $"{partido.Local} vs {partido.Visitante}    {marcador}",
-                        FontSize = 14,
-                        TextColor = Color.White
-                    });
+                        var partidoGrid = new Grid
+                        {
+                            ColumnDefinitions = new ColumnDefinitionCollection
+                    {
+                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
+                        new ColumnDefinition { Width = new GridLength(50) },
+                        new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) }
+                    },
+                            Margin = new Thickness(0, 5),
+                            VerticalOptions = LayoutOptions.Center
+                        };
+
+                        var lblLocal = new Label
+                        {
+                            Text = partido.Local,
+                            FontSize = 14,
+                            TextColor = Color.White,
+                            HorizontalOptions = LayoutOptions.End,
+                            VerticalOptions = LayoutOptions.Center
+                        };
+
+                        var lblVisitante = new Label
+                        {
+                            Text = partido.Visitante,
+                            FontSize = 14,
+                            TextColor = Color.White,
+                            HorizontalOptions = LayoutOptions.Start,
+                            VerticalOptions = LayoutOptions.Center
+                        };
+
+                        Label marcadorLabel;
+
+                        if (partido.GolesLocal == 0 && partido.GolesVisitante == 0)
+                        {
+                            marcadorLabel = new Label
+                            {
+                                Text = $"{partido.Fecha} {partido.Hora}",
+                                FontSize = 10,
+                                TextColor = Color.Gray,
+                                HorizontalOptions = LayoutOptions.Center,
+                                VerticalOptions = LayoutOptions.Center
+                            };
+                        }
+                        else
+                        {
+                            marcadorLabel = new Label
+                            {
+                                Text = $"{partido.GolesLocal} - {partido.GolesVisitante}",
+                                FontSize = 16,
+                                TextColor = Color.Gold,
+                                FontAttributes = FontAttributes.Bold,
+                                HorizontalOptions = LayoutOptions.Center,
+                                VerticalOptions = LayoutOptions.Center
+                            };
+                        }
+
+
+                        partidoGrid.Children.Add(lblLocal, 0, 0);
+                        partidoGrid.Children.Add(marcadorLabel, 1, 0);
+                        partidoGrid.Children.Add(lblVisitante, 2, 0);
+
+                        stack.Children.Add(partidoGrid);
+                    }
                 }
 
                 jornadaCard.Content = stack;
                 contenedorJornadas.Children.Add(jornadaCard);
             }
         }
+
+
 
         private void BtnCategoria_Clicked(object sender, EventArgs e)
         {

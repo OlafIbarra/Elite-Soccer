@@ -61,29 +61,40 @@ namespace Elite_Soccer
 
         public static string IdTokenUsuario { get; private set; } // Añádelo en tu clase MainPage
 
-        public static async Task<bool> IniciarSesionAsync(string correo, string contrasena)
-        {
-            string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FirebaseApiKey}";
-            var datos = new { email = correo, password = contrasena, returnSecureToken = true };
-            string json = JsonConvert.SerializeObject(datos);
-            var contenido = new StringContent(json, Encoding.UTF8, "application/json");
+       public static async Task<bool> IniciarSesionAsync(string correo, string contrasena)
+{
+    string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FirebaseApiKey}";
+    var datos = new { email = correo, password = contrasena, returnSecureToken = true };
+    string json = JsonConvert.SerializeObject(datos);
+    var contenido = new StringContent(json, Encoding.UTF8, "application/json");
 
-            using (HttpClient cliente = new HttpClient())
+    using (HttpClient cliente = new HttpClient())
+    {
+        try
+        {
+            HttpResponseMessage respuesta = await cliente.PostAsync(url, contenido);
+            if (respuesta.IsSuccessStatusCode)
             {
-                HttpResponseMessage respuesta = await cliente.PostAsync(url, contenido);
-                if (respuesta.IsSuccessStatusCode)
-                {
-                    string resultado = await respuesta.Content.ReadAsStringAsync();
-                    var datosRespuesta = JsonConvert.DeserializeObject<FirebaseAuthResponse>(resultado);
-                    IdTokenUsuario = datosRespuesta.idToken; // Guardamos el idToken
-                    return true;
-                }
-                else
-                {
-                    return false;
-                }
+                string resultado = await respuesta.Content.ReadAsStringAsync();
+                var datosRespuesta = JsonConvert.DeserializeObject<FirebaseAuthResponse>(resultado);
+                IdTokenUsuario = datosRespuesta.idToken;
+                return true;
+            }
+            else
+            {
+                string error = await respuesta.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine($"[Firebase ERROR]: {error}");
+                return false;
             }
         }
+        catch (Exception ex)
+        {
+            System.Diagnostics.Debug.WriteLine($"[EXCEPCIÓN EN LOGIN]: {ex.Message}");
+            return false;
+        }
+    }
+}
+
 
 
 

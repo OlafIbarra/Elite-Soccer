@@ -71,6 +71,10 @@ namespace Elite_Soccer
             }
         }
 
+        private async void InicioSesion_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PushAsync(new MainPage());
+        }
         public class RespuestaFirebase
         {
             public string localId { get; set; }

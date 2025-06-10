@@ -25,12 +25,37 @@
                FontAttributes="Bold"
                HorizontalOptions="Center"/>
 
-        <!-- Lista de goleadores -->
-        <ScrollView>
-            <StackLayout x:Name="contenedorGoleadores" Spacing="15">
-                
+        <!-- Contenedor de categorías en dos columnas -->
+        <Grid ColumnSpacing="10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+
+            <!-- Femenil -->
+            <StackLayout Grid.Column="0">
+                <Label Text="FEMENIL"
+                       FontSize="18"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+                <ScrollView>
+                    <StackLayout x:Name="contenedorFemenil" Spacing="15"/>
+                </ScrollView>
             </StackLayout>
-        </ScrollView>
+
+            <!-- Varonil -->
+            <StackLayout Grid.Column="1">
+                <Label Text="VARONIL"
+                       FontSize="18"
+                       TextColor="White"
+                       FontAttributes="Bold"
+                       HorizontalOptions="Center"/>
+                <ScrollView>
+                    <StackLayout x:Name="contenedorVaronil" Spacing="15"/>
+                </ScrollView>
+            </StackLayout>
+        </Grid>
 
     </StackLayout>
 </ContentPage>

@@ -2,24 +2,97 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Elite_Soccer.RegistroUsuario"
-             BackgroundColor="#111111"
-             NavigationPage.HasNavigationBar="False"
-             Title="Registro de Usuario">
+             BackgroundColor="#e3e3e3"
+             NavigationPage.HasNavigationBar="False">
 
-    <ScrollView>
-        <StackLayout Padding="30" Spacing="20">
-            <Label Text="Crear cuenta" FontSize="24" TextColor="Gold" HorizontalOptions="Center"/>
+    <Grid RowDefinitions="Auto, *" Padding="0,40,0,0">
 
-            <Entry x:Name="txtNombre" Placeholder="Nombre completo" TextColor="White" PlaceholderColor="Gray"/>
-            <Entry x:Name="txtCorreo" Placeholder="Correo electrónico" Keyboard="Email" TextColor="White" PlaceholderColor="Gray"/>
-            <Entry x:Name="txtContrasena" Placeholder="Contraseña" IsPassword="True" TextColor="White" PlaceholderColor="Gray"/>
+        <!-- Logo -->
+        <Image Grid.Row="0"
+               Source="LOGO1.png"
+               HeightRequest="150"
+               WidthRequest="150"
+               HorizontalOptions="Center"
+               Margin="0,20"/>
 
+        <!-- Contenido -->
+        <Frame Grid.Row="1"
+               Margin="0"
+               BackgroundColor="White"
+               CornerRadius="35"
+               HasShadow="True"
+               Padding="30">
 
-            <Button Text="Registrarse"
-                    BackgroundColor="Gold"
-                    TextColor="Black"
-                    Clicked="BtnRegistrarse_Clicked"/>
+            <ScrollView>
+                <StackLayout Spacing="20">
 
-        </StackLayout>
-    </ScrollView>
+                    <Label Text="Crear cuenta"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#55564f"
+                           HorizontalOptions="Center" />
+
+                    <Label Text="Registra tus datos para comenzar"
+                           FontSize="16"
+                           TextColor="#55564f"
+                           HorizontalOptions="Center" />
+
+                    <Entry x:Name="txtNombre"
+                           Placeholder="Nombre completo"
+                           TextColor="Black"
+                           PlaceholderColor="Gray" />
+
+                    <Entry x:Name="txtCorreo"
+                           Placeholder="Correo electrónico"
+                           Keyboard="Email"
+                           TextColor="Black"
+                           PlaceholderColor="Gray" />
+
+                    <Entry x:Name="txtContrasena"
+                           Placeholder="Contraseña"
+                           IsPassword="True"
+                           TextColor="Black"
+                           PlaceholderColor="Gray" />
+
+                    <!-- 🔴 Mensaje de error -->
+                    <Label x:Name="lblMensaje"
+                           TextColor="Red"
+                           FontSize="14"
+                           IsVisible="False"
+                           HorizontalOptions="Center" />
+
+                    <Button Text="Registrarse"
+                            BackgroundColor="#55564f"
+                            TextColor="White"
+                            CornerRadius="20"
+                            Clicked="BtnRegistrarse_Clicked" />
+
+                    <!-- 🔄 Indicador de carga -->
+                    <ActivityIndicator x:Name="indicadorCarga"
+                                       IsVisible="False"
+                                       IsRunning="False"
+                                       Color="#1C375C"
+                                       HeightRequest="30"
+                                       HorizontalOptions="Center"/>
+
+                    <!-- Enlace a inicio de sesión -->
+                    <StackLayout Orientation="Horizontal"
+                                 HorizontalOptions="Center">
+                        <Label Text="¿Ya tienes cuenta?"
+                               TextColor="Gray"
+                               FontSize="14" />
+                        <Label Text=" Inicia sesión"
+                               TextColor="#1C375C"
+                               FontAttributes="Bold"
+                               FontSize="14">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="InicioSesion_Clicked" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </StackLayout>
+
+                </StackLayout>
+            </ScrollView>
+        </Frame>
+    </Grid>
 </ContentPage>
