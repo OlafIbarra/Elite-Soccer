@@ -66,6 +66,8 @@
                             TextColor="White"
                             CornerRadius="20"
                             Clicked="BtnRegistrarse_Clicked" />
+                    
+
 
                     <!-- 🔄 Indicador de carga -->
                     <ActivityIndicator x:Name="indicadorCarga"
@@ -74,23 +76,6 @@
                                        Color="#1C375C"
                                        HeightRequest="30"
                                        HorizontalOptions="Center"/>
-
-                    <!-- Enlace a inicio de sesión -->
-                    <StackLayout Orientation="Horizontal"
-                                 HorizontalOptions="Center">
-                        <Label Text="¿Ya tienes cuenta?"
-                               TextColor="Gray"
-                               FontSize="14" />
-                        <Label Text=" Inicia sesión"
-                               TextColor="#1C375C"
-                               FontAttributes="Bold"
-                               FontSize="14">
-                            <Label.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="InicioSesion_Clicked" />
-                            </Label.GestureRecognizers>
-                        </Label>
-                    </StackLayout>
-
                 </StackLayout>
             </ScrollView>
         </Frame>

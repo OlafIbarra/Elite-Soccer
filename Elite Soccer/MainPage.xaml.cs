@@ -17,6 +17,12 @@ namespace Elite_Soccer
             InitializeComponent();
         }
 
+        public class LoginResultado
+        {
+            public bool Exitoso { get; set; }
+            public bool SinInternet { get; set; }
+        }
+
         private async void BtnIniciarSesion_Clicked(object sender, EventArgs e)
         {
             string correo = txtCorreo.Text;
@@ -35,65 +41,68 @@ namespace Elite_Soccer
                 return;
             }
 
-            bool exito = await IniciarSesionAsync(correo, contrasena);
+            var resultado = await IniciarSesionAsync(correo, contrasena);
+
 
             indicadorCarga.IsRunning = false;
             indicadorCarga.IsVisible = false;
 
-            if (exito)
+            if (resultado.Exitoso)
             {
                 if (correo == "admin@elite.com" && contrasena == "admin123")
-                {
                     await Navigation.PushAsync(new AdminPage());
-                }
                 else
-                {
                     await Navigation.PushAsync(new PaginaUsuario());
-                }
             }
             else
             {
-                lblMensaje.Text = "Correo o contraseña incorrectos.";
+                lblMensaje.Text = resultado.SinInternet
+                    ? "No tienes conexión a internet. Intenta nuevamente."
+                    : "Correo o contraseña incorrectos.";
                 lblMensaje.IsVisible = true;
             }
+
         }
 
 
         public static string IdTokenUsuario { get; private set; } // Añádelo en tu clase MainPage
 
-       public static async Task<bool> IniciarSesionAsync(string correo, string contrasena)
-{
-    string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FirebaseApiKey}";
-    var datos = new { email = correo, password = contrasena, returnSecureToken = true };
-    string json = JsonConvert.SerializeObject(datos);
-    var contenido = new StringContent(json, Encoding.UTF8, "application/json");
+        public static async Task<LoginResultado> IniciarSesionAsync(string correo, string contrasena)
+        {
+            string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key={FirebaseApiKey}";
+            var datos = new { email = correo, password = contrasena, returnSecureToken = true };
+            string json = JsonConvert.SerializeObject(datos);
+            var contenido = new StringContent(json, Encoding.UTF8, "application/json");
 
-    using (HttpClient cliente = new HttpClient())
-    {
-        try
-        {
-            HttpResponseMessage respuesta = await cliente.PostAsync(url, contenido);
-            if (respuesta.IsSuccessStatusCode)
+            using (HttpClient cliente = new HttpClient())
             {
-                string resultado = await respuesta.Content.ReadAsStringAsync();
-                var datosRespuesta = JsonConvert.DeserializeObject<FirebaseAuthResponse>(resultado);
-                IdTokenUsuario = datosRespuesta.idToken;
-                return true;
-            }
-            else
-            {
-                string error = await respuesta.Content.ReadAsStringAsync();
-                System.Diagnostics.Debug.WriteLine($"[Firebase ERROR]: {error}");
-                return false;
+                try
+                {
+                    HttpResponseMessage respuesta = await cliente.PostAsync(url, contenido);
+                    if (respuesta.IsSuccessStatusCode)
+                    {
+                        string resultado = await respuesta.Content.ReadAsStringAsync();
+                        var datosRespuesta = JsonConvert.DeserializeObject<FirebaseAuthResponse>(resultado);
+                        IdTokenUsuario = datosRespuesta.idToken;
+                        return new LoginResultado { Exitoso = true };
+                    }
+                    else
+                    {
+                        return new LoginResultado { Exitoso = false };
+                    }
+                }
+                catch (HttpRequestException ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[SIN INTERNET]: {ex.Message}");
+                    return new LoginResultado { Exitoso = false, SinInternet = true };
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine($"[EXCEPCIÓN LOGIN]: {ex.Message}");
+                    return new LoginResultado { Exitoso = false };
+                }
             }
         }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine($"[EXCEPCIÓN EN LOGIN]: {ex.Message}");
-            return false;
-        }
-    }
-}
 
 
 

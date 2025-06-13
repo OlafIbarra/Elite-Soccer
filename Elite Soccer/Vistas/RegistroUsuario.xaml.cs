@@ -1,83 +1,73 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
+using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Xamarin.Forms;
+using Elite_Soccer.Vistas;
+
+
 
 namespace Elite_Soccer
 {
     public partial class RegistroUsuario : ContentPage
     {
         private static readonly HttpClient clienteHttp = new HttpClient();
-        private const string ApiKey = "AIzaSyABVSBLEnEWNa5EggbWaUqynwTqoe1IZm4"; 
+        private const string ApiKey = "AIzaSyABVSBLEnEWNa5EggbWaUqynwTqoe1IZm4";
 
-        public RegistroUsuario()
+        public RegistroUsuario() => InitializeComponent();
+
+        class RespuestaFirebase { public string localId { get; set; } }
+
+        class RespuestaGoogle
         {
-            InitializeComponent();
+            public string localId { get; set; }
+            public string email { get; set; }
+            public string displayName { get; set; }
         }
 
         private async void BtnRegistrarse_Clicked(object sender, EventArgs e)
         {
-            string nombre = txtNombre.Text;
-            string correo = txtCorreo.Text;
+            string nombre = txtNombre.Text?.Trim();
+            string correo = txtCorreo.Text?.Trim();
             string contrasena = txtContrasena.Text;
-            string rol = "Usuario"; // ← Rol fijo, ya no se escoge
 
-            if (string.IsNullOrWhiteSpace(nombre) || string.IsNullOrWhiteSpace(correo) ||
-                string.IsNullOrWhiteSpace(contrasena))
+            if (string.IsNullOrEmpty(nombre) || !correo.Contains("@") || string.IsNullOrWhiteSpace(contrasena) || contrasena.Length < 6)
             {
-                await DisplayAlert("Error", "Todos los campos son obligatorios", "OK");
+                await DisplayAlert("Error", "Nombre, correo válido y contraseña (mínimo 6 caracteres) son obligatorios", "OK");
                 return;
             }
 
-            // Crear cuenta en Firebase Authentication
-            var datosRegistro = new
+            var datos = new { email = correo, password = contrasena, returnSecureToken = true };
+            var contenido = new StringContent(JsonConvert.SerializeObject(datos), Encoding.UTF8, "application/json");
+
+            var resp = await clienteHttp.PostAsync(
+              $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={ApiKey}",
+              contenido
+            );
+
+            if (resp.IsSuccessStatusCode)
             {
-                email = correo,
-                password = contrasena,
-                returnSecureToken = true
-            };
+                var res = JsonConvert.DeserializeObject<RespuestaFirebase>(await resp.Content.ReadAsStringAsync());
 
-            string json = JsonConvert.SerializeObject(datosRegistro);
-            var contenido = new StringContent(json, Encoding.UTF8, "application/json");
-
-            string url = $"https://identitytoolkit.googleapis.com/v1/accounts:signUp?key={ApiKey}";
-            HttpResponseMessage respuesta = await clienteHttp.PostAsync(url, contenido);
-
-            if (respuesta.IsSuccessStatusCode)
-            {
-                // Obtener el UID del usuario creado
-                var respuestaJson = await respuesta.Content.ReadAsStringAsync();
-                var datosRespuesta = JsonConvert.DeserializeObject<RespuestaFirebase>(respuestaJson);
-
-                // Guardar nombre y rol en Realtime Database
-                var datosExtra = new
-                {
-                    nombre = nombre,
-                    correo = correo,
-                    rol = rol
-                };
-
-                string dbUrl = $"https://clubeliteapp-default-rtdb.firebaseio.com/usuarios/{datosRespuesta.localId}.json";
-                string jsonDatosExtra = JsonConvert.SerializeObject(datosExtra);
-                await clienteHttp.PutAsync(dbUrl, new StringContent(jsonDatosExtra, Encoding.UTF8, "application/json"));
+                var usuarioInfo = new { nombre, correo, rol = "Usuario" };
+                await clienteHttp.PutAsync(
+                  $"https://clubeliteapp-default-rtdb.firebaseio.com/usuarios/{res.localId}.json",
+                  new StringContent(JsonConvert.SerializeObject(usuarioInfo), Encoding.UTF8, "application/json")
+                );
 
                 await DisplayAlert("Éxito", "Usuario registrado correctamente", "OK");
-                await Navigation.PopAsync(); // Volver atrás
+                await Navigation.PopAsync();
             }
             else
             {
-                await DisplayAlert("Error", "No se pudo registrar el usuario", "OK");
+                var error = await resp.Content.ReadAsStringAsync();
+                await DisplayAlert("Error", $"No se pudo registrar: {error}", "OK");
             }
         }
-
-        private async void InicioSesion_Clicked(object sender, EventArgs e)
+    private async void InicioSesion_Clicked(object sender, EventArgs e)
         {
             await Navigation.PushAsync(new MainPage());
-        }
-        public class RespuestaFirebase
-        {
-            public string localId { get; set; }
         }
     }
 }

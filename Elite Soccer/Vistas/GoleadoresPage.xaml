@@ -1,61 +1,44 @@
-﻿<?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
+﻿<ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:pancake="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
              x:Class="Elite_Soccer.Vistas.GoleadoresPage"
              BackgroundColor="#111111"
-             Title="Goleadores"
              NavigationPage.HasNavigationBar="False">
 
-    <StackLayout Spacing="20" Padding="20">
+    <ScrollView>
+        <StackLayout Padding="20" Spacing="20" HeightRequest="1000">
 
-        <!-- Botón de regreso -->
-        <Image Source="volver.png"
-               HeightRequest="30"
-               WidthRequest="30"
-               HorizontalOptions="Start">
-            <Image.GestureRecognizers>
-                <TapGestureRecognizer Tapped="Volver_Clicked"/>
-            </Image.GestureRecognizers>
-        </Image>
+            <!-- Botón de regreso -->
+            <Image Source="volver.png"
+                   HeightRequest="30"
+                   WidthRequest="30"
+                   HorizontalOptions="Start">
+                <Image.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="Volver_Clicked"/>
+                </Image.GestureRecognizers>
+            </Image>
 
-        <Label Text="GOLEADORES"
-               FontSize="22"
-               TextColor="Gold"
-               FontAttributes="Bold"
-               HorizontalOptions="Center"/>
+            <Label Text="GOLEADORES"
+                   FontSize="22"
+                   TextColor="Gold"
+                   FontAttributes="Bold"
+                   HorizontalOptions="Center"/>
 
-        <!-- Contenedor de categorías en dos columnas -->
-        <Grid ColumnSpacing="10">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*" />
-                <ColumnDefinition Width="*" />
-            </Grid.ColumnDefinitions>
+            <!-- Botones de categoría -->
+            <Frame CornerRadius="20" BackgroundColor="Transparent" Padding="5" Margin="5" x:Name="frameCategorias">
+                <Grid ColumnDefinitions="*,*">
+                    <Button x:Name="btnFemenil" Text="FEMENIL" Clicked="BtnCategoria_Clicked"
+                            BackgroundColor="#252525" TextColor="Gold" HeightRequest="40"/>
+                    <Button x:Name="btnVaronil" Text="VARONIL" Grid.Column="1" Clicked="BtnCategoria_Clicked"
+                            BackgroundColor="#1E1E1E" TextColor="White" HeightRequest="40"/>
+                </Grid>
+            </Frame>
 
-            <!-- Femenil -->
-            <StackLayout Grid.Column="0">
-                <Label Text="FEMENIL"
-                       FontSize="18"
-                       TextColor="White"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
-                <ScrollView>
-                    <StackLayout x:Name="contenedorFemenil" Spacing="15"/>
-                </ScrollView>
-            </StackLayout>
+            <!-- Lista de goleadores -->
+            <StackLayout x:Name="contenedorGoleadores" Spacing="15"/>
 
-            <!-- Varonil -->
-            <StackLayout Grid.Column="1">
-                <Label Text="VARONIL"
-                       FontSize="18"
-                       TextColor="White"
-                       FontAttributes="Bold"
-                       HorizontalOptions="Center"/>
-                <ScrollView>
-                    <StackLayout x:Name="contenedorVaronil" Spacing="15"/>
-                </ScrollView>
-            </StackLayout>
-        </Grid>
+           
 
-    </StackLayout>
+        </StackLayout>
+    </ScrollView>
 </ContentPage>

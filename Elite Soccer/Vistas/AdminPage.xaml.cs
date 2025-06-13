@@ -734,26 +734,33 @@ namespace Elite_Soccer.Vistas
 
                     if (dict != null)
                     {
-                        var lista = new List<Modelo.Goleador>();
+                        var listaVaronil = new List<Goleador>();
+                        var listaFemenil = new List<Goleador>();
 
                         foreach (var item in dict)
                         {
-                            item.Value.IdFirebase = item.Key;
-                            lista.Add(item.Value);
+                            var goleador = item.Value;
+                            goleador.IdFirebase = item.Key;
+                            goleador.descripcion = $"{goleador.nombre} ({goleador.equipo}) - {goleador.goles} gol(es)";
+
+                            if (goleador.categoria == "Varonil")
+                                listaVaronil.Add(goleador);
+                            else if (goleador.categoria == "Femenil")
+                                listaFemenil.Add(goleador);
                         }
 
-                        // Ordenar por goles descendente
-                        listaGoleadores.ItemsSource = lista
-                            .OrderByDescending(g => g.goles)
-                            .ToList();
+                        listaGoleadoresVaronil.ItemsSource = listaVaronil.OrderByDescending(g => g.goles).ToList();
+                        listaGoleadoresFemenil.ItemsSource = listaFemenil.OrderByDescending(g => g.goles).ToList();
                     }
                     else
                     {
-                        listaGoleadores.ItemsSource = null;
+                        listaGoleadoresVaronil.ItemsSource = null;
+                        listaGoleadoresFemenil.ItemsSource = null;
                     }
                 }
             }
         }
+
 
         private void LimpiarFormularioGoleador()
         {
@@ -793,7 +800,66 @@ namespace Elite_Soccer.Vistas
 
 
 
-        
+        private void BtnAgregarEquipo_Clicked(object sender, EventArgs e)
+        {
+            string categoria = pickerCategoriaEquipo.SelectedItem as string;
+            string nuevoEquipo = entryNuevoEquipo.Text?.Trim();
+
+            if (string.IsNullOrEmpty(categoria) || string.IsNullOrEmpty(nuevoEquipo))
+            {
+                DisplayAlert("Error", "Debes seleccionar una categoría y escribir un nombre.", "OK");
+                return;
+            }
+
+            var lista = categoria == "Varonil" ? equiposVaronil : equiposFemenil;
+
+            if (lista.Contains(nuevoEquipo, StringComparer.OrdinalIgnoreCase))
+            {
+                DisplayAlert("Error", "Ese equipo ya está registrado.", "OK");
+                return;
+            }
+
+            lista.Add(nuevoEquipo);
+            entryNuevoEquipo.Text = "";
+            ActualizarListaEquipos(categoria);
+        }
+
+        private void pickerCategoriaEquipo_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            string categoria = pickerCategoriaEquipo.SelectedItem as string;
+            ActualizarListaEquipos(categoria);
+        }
+
+        private void ActualizarListaEquipos(string categoria)
+        {
+            if (categoria == "Varonil")
+                listaEquipos.ItemsSource = new List<string>(equiposVaronil);
+            else if (categoria == "Femenil")
+                listaEquipos.ItemsSource = new List<string>(equiposFemenil);
+        }
+
+        private async void ListaEquipos_ItemSelected(object sender, SelectedItemChangedEventArgs e)
+        {
+            if (e.SelectedItem == null) return;
+
+            string equipoSeleccionado = e.SelectedItem.ToString();
+            string categoria = pickerCategoriaEquipo.SelectedItem as string;
+
+            bool eliminar = await DisplayAlert("Eliminar", $"¿Deseas eliminar el equipo '{equipoSeleccionado}'?", "Sí", "No");
+
+            if (eliminar)
+            {
+                if (categoria == "Varonil")
+                    equiposVaronil.Remove(equipoSeleccionado);
+                else if (categoria == "Femenil")
+                    equiposFemenil.Remove(equipoSeleccionado);
+
+                ActualizarListaEquipos(categoria);
+            }
+
+            listaEquipos.SelectedItem = null;
+        }
+
 
 
     }

@@ -8,6 +8,6 @@
         public string equipo { get; set; }
         public int goles { get; set; }
 
-        public string descripcion => $"{nombre} ({equipo}) - {goles} gol(es)";
+        public string descripcion { get; set; }
     }
 }

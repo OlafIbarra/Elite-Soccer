@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             xmlns:pv="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
+             
+                                       xmlns:pancake="clr-namespace:Xamarin.Forms.PancakeView;assembly=Xamarin.Forms.PancakeView"
              x:Class="Elite_Soccer.Vistas.CalendarioPage"
              BackgroundColor="#111111"
              NavigationPage.HasNavigationBar="False">
@@ -34,5 +35,49 @@
             <StackLayout x:Name="contenedorJornadas" Spacing="20"/>
         </ScrollView>
 
+        <StackLayout Padding="20" Spacing="20">
+
+            <!-- Goleadores -->
+            <pancake:PancakeView BackgroundColor="#1A1A1A" CornerRadius="20" Padding="15">
+                <Grid>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="VerGoleadores_Clicked"/>
+                    </Grid.GestureRecognizers>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Source="icono_goleador.png" HeightRequest="60" WidthRequest="60"/>
+                    <StackLayout Grid.Column="1" Padding="10,0" VerticalOptions="Center">
+                        <Label Text="Goleadores" FontSize="18" TextColor="White" FontAttributes="Bold"/>
+                        <Label Text="Revisa los máximos anotadores" TextColor="Gray" FontSize="14"/>
+                    </StackLayout>
+                </Grid>
+            </pancake:PancakeView>
+
+
+            <!-- Tabla de posiciones -->
+            <pancake:PancakeView BackgroundColor="#1A1A1A" CornerRadius="20" Padding="15">
+                <Grid>
+                    <Grid.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="VerTabla_Clicked"/>
+                    </Grid.GestureRecognizers>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Image Source="icono_tabla.png" HeightRequest="60" WidthRequest="60"/>
+                    <StackLayout Grid.Column="1" Padding="10,0" VerticalOptions="Center">
+                        <Label Text="Tabla de posiciones" FontSize="18" TextColor="White" FontAttributes="Bold"/>
+                        <Label Text="Consulta la tabla actual por categoría" TextColor="Gray" FontSize="14"/>
+                    </StackLayout>
+                </Grid>
+            </pancake:PancakeView>
+
+        </StackLayout>
     </StackLayout>
 </ContentPage>
