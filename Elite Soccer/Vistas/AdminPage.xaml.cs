@@ -25,6 +25,13 @@ namespace Elite_Soccer.Vistas
         {
             InitializeComponent();
             CargarPickerJornadas();
+            if (pickerCategoriaEquipo.SelectedIndex == -1)
+                pickerCategoriaEquipo.SelectedIndex = 0; // Por seguridad
+
+            string categoriaInicial = pickerCategoriaEquipo.Items[pickerCategoriaEquipo.SelectedIndex];
+            ActualizarListaEquipos(categoriaInicial);
+
+
         }
 
         protected override async void OnAppearing()
@@ -859,6 +866,7 @@ namespace Elite_Soccer.Vistas
 
             listaEquipos.SelectedItem = null;
         }
+       
 
 
 

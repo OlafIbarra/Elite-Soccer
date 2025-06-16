@@ -58,7 +58,11 @@
                     <Label Text="Tabla de Goleadores" FontSize="18" TextColor="Gold" />
 
                     <Label Text="Varonil" TextColor="White" FontAttributes="Bold" FontSize="Medium" />
-                    <ListView x:Name="listaGoleadoresVaronil" HasUnevenRows="True" BackgroundColor="Transparent" SeparatorColor="DarkGray">
+                    <ListView x:Name="listaGoleadoresVaronil"
+              HasUnevenRows="True"
+              BackgroundColor="Transparent"
+              SeparatorColor="DarkGray"
+              ItemTapped="ListaGoleadores_ItemTapped">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextCell Text="{Binding descripcion}" TextColor="White" />
@@ -67,13 +71,18 @@
                     </ListView>
 
                     <Label Text="Femenil" TextColor="White" FontAttributes="Bold" FontSize="Medium" Margin="0,10,0,0"/>
-                    <ListView x:Name="listaGoleadoresFemenil" HasUnevenRows="True" BackgroundColor="Transparent" SeparatorColor="DarkGray">
+                    <ListView x:Name="listaGoleadoresFemenil"
+          HasUnevenRows="True"
+          BackgroundColor="Transparent"
+          SeparatorColor="DarkGray"
+          ItemTapped="ListaGoleadores_ItemTapped">
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <TextCell Text="{Binding descripcion}" TextColor="White" />
                             </DataTemplate>
                         </ListView.ItemTemplate>
                     </ListView>
+
                 </StackLayout>
             </pv:PancakeView>
 
@@ -90,7 +99,10 @@
                         <Button x:Name="btnTablaFemenil" Text="FEMENIL" Grid.Column="1" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="0" Clicked="BtnTablaCategoria_Clicked" />
                     </Grid>
                     <ScrollView Orientation="Horizontal">
-                        <CollectionView x:Name="collectionTabla" SelectionMode="Single" SelectionChanged="CollectionTabla_SelectionChanged">
+                        <CollectionView x:Name="collectionTabla"
+                    WidthRequest="800"
+                    SelectionMode="Single"
+                    SelectionChanged="CollectionTabla_SelectionChanged">
                             <CollectionView.Header>
                                 <Grid ColumnDefinitions="40,*,50,50,50,50,50,50,60" BackgroundColor="#252525" Padding="10">
                                     <Label Text="#" Grid.Column="0" FontAttributes="Bold" TextColor="Gold" />
@@ -121,6 +133,7 @@
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                     </ScrollView>
+
                 </StackLayout>
             </pv:PancakeView>
 
@@ -224,7 +237,8 @@
     <StackLayout Spacing="10">
         <Label Text="Administrar Equipos" TextColor="Gold" FontAttributes="Bold" FontSize="20" HorizontalOptions="Center" />
 
-        <Picker x:Name="pickerCategoriaEquipo" Title="Selecciona Categoría">
+          <Picker x:Name="pickerCategoriaEquipo" Title="Selecciona Categoría" SelectedIndexChanged="pickerCategoriaEquipo_SelectedIndexChanged"
+>
             <Picker.Items>
                 <x:String>Varonil</x:String>
                 <x:String>Femenil</x:String>
