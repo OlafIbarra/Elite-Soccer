@@ -233,34 +233,34 @@
             
             
             <!-- AGREGAR / ELIMINAR EQUIPOS -->
-<Frame BackgroundColor="#1E1E1E" CornerRadius="20" Padding="15" Margin="0,20,0,20">
-    <StackLayout Spacing="10">
-        <Label Text="Administrar Equipos" TextColor="Gold" FontAttributes="Bold" FontSize="20" HorizontalOptions="Center" />
+            <Frame BackgroundColor="#1E1E1E" CornerRadius="20" Padding="15" Margin="0,20,0,20">
+                <StackLayout Spacing="10">
+                    <Label Text="Administrar Equipos" TextColor="Gold" FontAttributes="Bold" FontSize="20" HorizontalOptions="Center" />
 
-          <Picker x:Name="pickerCategoriaEquipo" Title="Selecciona Categoría" SelectedIndexChanged="pickerCategoriaEquipo_SelectedIndexChanged"
->
-            <Picker.Items>
-                <x:String>Varonil</x:String>
-                <x:String>Femenil</x:String>
-            </Picker.Items>
-        </Picker>
+                      <Picker x:Name="pickerCategoriaEquipo" Title="Selecciona Categoría" SelectedIndexChanged="pickerCategoriaEquipo_SelectedIndexChanged"
+            >
+                        <Picker.Items>
+                            <x:String>Varonil</x:String>
+                            <x:String>Femenil</x:String>
+                        </Picker.Items>
+                    </Picker>
 
-        <Entry x:Name="entryNuevoEquipo" Placeholder="Nombre del nuevo equipo" TextColor="White" BackgroundColor="#333333" />
+                    <Entry x:Name="entryNuevoEquipo" Placeholder="Nombre del nuevo equipo" TextColor="White" BackgroundColor="#333333" />
 
-        <Button Text="Agregar Equipo" Clicked="BtnAgregarEquipo_Clicked" BackgroundColor="Green" TextColor="White" />
+                    <Button Text="Agregar Equipo" Clicked="BtnAgregarEquipo_Clicked" BackgroundColor="Green" TextColor="White" />
 
-        <Label Text="Equipos Registrados" TextColor="White" FontAttributes="Bold" />
-        <ListView x:Name="listaEquipos" ItemSelected="ListaEquipos_ItemSelected"
-                  BackgroundColor="#222" SeparatorColor="Gray"
-                  HeightRequest="150">
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <TextCell Text="{Binding}" TextColor="White" />
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </ListView>
-    </StackLayout>
-</Frame>
+                    <Label Text="Equipos Registrados" TextColor="White" FontAttributes="Bold" />
+                    <ListView x:Name="listaEquipos" ItemSelected="ListaEquipos_ItemSelected"
+                              BackgroundColor="#222" SeparatorColor="Gray"
+                              HeightRequest="150">
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <TextCell Text="{Binding}" TextColor="White" />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </StackLayout>
+            </Frame>
 
 
         </StackLayout>

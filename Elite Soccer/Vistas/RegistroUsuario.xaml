@@ -76,6 +76,21 @@
                                        Color="#1C375C"
                                        HeightRequest="30"
                                        HorizontalOptions="Center"/>
+                    <!-- Enlace a  inicio sesion -->
+                    <StackLayout Orientation="Horizontal"
+              HorizontalOptions="Center">
+                        <Label Text="¿Ya tienes cuenta?"
+            TextColor="Gray"
+            FontSize="14" />
+                        <Label Text=" Iniciar sesión"
+            TextColor="#1C375C"
+            FontAttributes="Bold"
+            FontSize="14">
+                            <Label.GestureRecognizers>
+                                <TapGestureRecognizer Tapped="InicioSesion_Clicked" />
+                            </Label.GestureRecognizers>
+                        </Label>
+                    </StackLayout>
                 </StackLayout>
             </ScrollView>
         </Frame>

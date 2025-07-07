@@ -17,6 +17,18 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
+                <!-- Botón Facebook -->
+                <Image Source="facebook.png"
+       HeightRequest="35"
+       WidthRequest="35"
+       HorizontalOptions="Start"
+       VerticalOptions="Start"
+       Margin="0,0,0,0">
+                    <Image.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="Facebook_Clicked"/>
+                    </Image.GestureRecognizers>
+                </Image>
+
 
                 <!-- Logo en círculo -->
                 <Frame BackgroundColor="White"

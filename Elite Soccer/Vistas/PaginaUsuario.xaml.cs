@@ -1,4 +1,5 @@
 ﻿using System;
+using Xamarin.Essentials;
 using Xamarin.Forms;
 
 namespace Elite_Soccer.Vistas
@@ -30,6 +31,19 @@ namespace Elite_Soccer.Vistas
      //       MainPage.IdTokenUsuario = null; // Limpia el token de sesión
             await Navigation.PopToRootAsync(); // Regresa al login
         }
+        private async void Facebook_Clicked(object sender, EventArgs e)
+        {
+            string url = "https://www.facebook.com/EliteSoccerStadioMx/about?locale=es_LA"; // <-- cambia esta por la real
+            try
+            {
+                await Launcher.OpenAsync(url);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", "No se pudo abrir la página de Facebook", "OK");
+            }
+        }
+
 
     }
 }
