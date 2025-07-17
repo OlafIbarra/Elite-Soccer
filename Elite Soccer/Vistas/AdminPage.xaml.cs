@@ -75,7 +75,7 @@ namespace Elite_Soccer.Vistas
             ["Femenil"] = new List<EquipoTabla>()
         };
         private string _categoriaTablaActual = "Varonil";
-       
+
         private async Task CargarTablaExistente()
         {
             try
@@ -140,7 +140,7 @@ namespace Elite_Soccer.Vistas
             // El binding automático se encarga de mostrar el panel de edición
         }
 
-        
+
 
         private async void BtnGuardarTabla_Clicked(object sender, EventArgs e)
         {
@@ -175,19 +175,20 @@ namespace Elite_Soccer.Vistas
         {
             "FÉNIX", "MACRO PLAZA", "VALENCIA", "REAL PRIMERA", "AJAX", "BRASIL",
             "TAZOS DORADOS", "PUEBLA", "TDR", "PURO CHACOTEO", "SAN PACHO", "UNAM",
-            "DVO. TACHIRA", "SAN RAFA", "ALEMANIA", "CARACAS", "NEW PEOPLE"
+            "SAN RAFA", "ALEMANIA", "NEW PEOPLE", "STARLIGTH FC", "TOTTENHAM", "AMERICA", "CRUZ AZUL", "VICTORIA",
+            "ATLETICO DE MADRID", "UMPA LUMPA", "ARSENAL"
         };
 
         private readonly List<string> equiposFemenil = new List<string>
         {
-            "TEAM INFIERNO", "MAJESTIC", "MIAMI", "BRASIL", "CHELSEA",
+            "TEAM INFIERNO", "MAJESTIC", "MIAMI", "CHELSEA",
             "BARCELONA", "FENIX", "PUMAS", "TBT"
         };
         /************TABLA DE POSICIONES FIN*********/
 
 
-   
-        
+
+
         private List<Partido> partidosTemp = new List<Partido>();
 
         public class Partido
@@ -669,13 +670,10 @@ namespace Elite_Soccer.Vistas
 
 
 
-        
 
 
-        private async void Volver_Clicked(object sender, EventArgs e)
-        {
-            await Navigation.PopAsync();
-        }
+
+       
 
 
         /*********************************GOLEADORES********************************/
@@ -866,10 +864,12 @@ namespace Elite_Soccer.Vistas
 
             listaEquipos.SelectedItem = null;
         }
-       
 
 
 
+        private async void Volver_Clicked(object sender, EventArgs e)
+        {
+            await Navigation.PopAsync();
+        }
     }
 }
-
