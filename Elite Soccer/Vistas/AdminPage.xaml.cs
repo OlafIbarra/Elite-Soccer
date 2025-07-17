@@ -631,13 +631,13 @@ namespace Elite_Soccer.Vistas
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(40) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            var entryGolesLocal = new Entry { Text = partido.GolesLocal.ToString(), Keyboard = Keyboard.Numeric };
-            var entryGolesVisitante = new Entry { Text = partido.GolesVisitante.ToString(), Keyboard = Keyboard.Numeric };
+            var entryGolesLocal = new Entry { Text = partido.GolesLocal.ToString(), Keyboard = Keyboard.Numeric, TextColor = Color.White };
+            var entryGolesVisitante = new Entry { Text = partido.GolesVisitante.ToString(), Keyboard = Keyboard.Numeric, TextColor = Color.White };
 
-            grid.Children.Add(new Label { Text = partido.Local }, 0, 0);
+            grid.Children.Add(new Label { Text = partido.Local, TextColor = Color.White }, 0, 0);
             grid.Children.Add(entryGolesLocal, 1, 0);
             grid.Children.Add(entryGolesVisitante, 2, 0);
-            grid.Children.Add(new Label { Text = partido.Visitante }, 3, 0);
+            grid.Children.Add(new Label { Text = partido.Visitante, TextColor = Color.White }, 3, 0);
 
             grid.BindingContext = new Tuple<Partido, Entry, Entry>(partido, entryGolesLocal, entryGolesVisitante);
 
