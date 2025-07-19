@@ -12,6 +12,7 @@ using System.Linq;
 using System.Globalization;
 using static Elite_Soccer.Vistas.CalendarioPage;
 using Xamarin.Essentials;
+using System.Collections.ObjectModel;
 
 namespace Elite_Soccer.Vistas
 {
@@ -21,6 +22,9 @@ namespace Elite_Soccer.Vistas
 
         private const string FirebaseDatabaseUrl = "https://clubeliteapp-default-rtdb.firebaseio.com";
         private FirebaseClient firebase;
+        private ObservableCollection<string> equiposVaronil = new ObservableCollection<string>();
+        private ObservableCollection<string> equiposFemenil = new ObservableCollection<string>();
+
         public AdminPage()
         {
             InitializeComponent();
@@ -37,15 +41,47 @@ namespace Elite_Soccer.Vistas
         protected override async void OnAppearing()
         {
             base.OnAppearing();
-            await CargarTablaExistente();
-            await CargarGoleadores();
             firebase = new FirebaseClient(
                 FirebaseDatabaseUrl,
                 new FirebaseOptions
                 {
                     AuthTokenAsyncFactory = () => Task.FromResult(MainPage.IdTokenUsuario)
                 });
+
+            await CargarEquiposDesdeFirebase();
+            await CargarTablaExistente();
+            await CargarGoleadores();
         }
+
+
+        private async Task CargarEquiposDesdeFirebase()
+        {
+            try
+            {
+                var equipos = await firebase
+                    .Child("equipos")
+                    .OnceAsync<EquipoFirebase>();
+
+                equiposVaronil.Clear();
+                equiposFemenil.Clear();
+
+                foreach (var equipo in equipos)
+                {
+                    if (equipo.Object.categoria == "Varonil")
+                        equiposVaronil.Add(equipo.Object.nombre);
+                    else if (equipo.Object.categoria == "Femenil")
+                        equiposFemenil.Add(equipo.Object.nombre);
+                }
+
+                string categoriaActual = pickerCategoriaEquipo.SelectedItem as string;
+                ActualizarListaEquipos(categoriaActual);
+            }
+            catch (Exception ex)
+            {
+                await DisplayAlert("Error", "No se pudieron cargar los equipos: " + ex.Message, "OK");
+            }
+        }
+
 
 
 
@@ -170,7 +206,7 @@ namespace Elite_Soccer.Vistas
             }
         }
 
-
+/*
         private readonly List<string> equiposVaronil = new List<string>
         {
             "FÉNIX", "MACRO PLAZA", "VALENCIA", "REAL PRIMERA", "AJAX", "BRASIL",
@@ -184,6 +220,7 @@ namespace Elite_Soccer.Vistas
             "TEAM INFIERNO", "MAJESTIC", "MIAMI", "CHELSEA",
             "BARCELONA", "FENIX", "PUMAS", "TBT"
         };
+*/
         /************TABLA DE POSICIONES FIN*********/
 
 
@@ -219,7 +256,7 @@ namespace Elite_Soccer.Vistas
 
         private void CargarPickerJornadas()
         {
-            for (int i = 1; i <= 20; i++)
+            for (int i = 1; i <= 40; i++)
             {
                 pickerNumeroJornada.Items.Add(i.ToString());
             }
@@ -804,30 +841,35 @@ namespace Elite_Soccer.Vistas
 
 
 
-
-        private void BtnAgregarEquipo_Clicked(object sender, EventArgs e)
+        //SECCION PARA AGREGAR EQUIPOS Y ELIMINARLOS
+        private async void BtnAgregarEquipo_Clicked(object sender, EventArgs e)
         {
             string categoria = pickerCategoriaEquipo.SelectedItem as string;
             string nuevoEquipo = entryNuevoEquipo.Text?.Trim();
 
             if (string.IsNullOrEmpty(categoria) || string.IsNullOrEmpty(nuevoEquipo))
             {
-                DisplayAlert("Error", "Debes seleccionar una categoría y escribir un nombre.", "OK");
+                await DisplayAlert("Error", "Debes seleccionar una categoría y escribir un nombre.", "OK");
                 return;
             }
 
             var lista = categoria == "Varonil" ? equiposVaronil : equiposFemenil;
 
-            if (lista.Contains(nuevoEquipo, StringComparer.OrdinalIgnoreCase))
+            if (lista.Any(e => e.Equals(nuevoEquipo, StringComparison.OrdinalIgnoreCase)))
             {
-                DisplayAlert("Error", "Ese equipo ya está registrado.", "OK");
+                await DisplayAlert("Error", "Ese equipo ya está registrado.", "OK");
                 return;
             }
+
+            var equipo = new EquipoFirebase { nombre = nuevoEquipo, categoria = categoria };
+            await firebase.Child("equipos").PostAsync(equipo);
 
             lista.Add(nuevoEquipo);
             entryNuevoEquipo.Text = "";
             ActualizarListaEquipos(categoria);
         }
+
+
 
         private void pickerCategoriaEquipo_SelectedIndexChanged(object sender, EventArgs e)
         {
@@ -851,20 +893,38 @@ namespace Elite_Soccer.Vistas
             string categoria = pickerCategoriaEquipo.SelectedItem as string;
 
             bool eliminar = await DisplayAlert("Eliminar", $"¿Deseas eliminar el equipo '{equipoSeleccionado}'?", "Sí", "No");
+            if (!eliminar) return;
 
-            if (eliminar)
+            // Eliminar de Firebase
+            var equipos = await firebase
+                .Child("equipos")
+                .OnceAsync<EquipoFirebase>();
+
+            var equipoEliminar = equipos.FirstOrDefault(x =>
+                x.Object.nombre.Equals(equipoSeleccionado, StringComparison.OrdinalIgnoreCase) &&
+                x.Object.categoria == categoria);
+
+            if (equipoEliminar != null)
             {
-                if (categoria == "Varonil")
-                    equiposVaronil.Remove(equipoSeleccionado);
-                else if (categoria == "Femenil")
-                    equiposFemenil.Remove(equipoSeleccionado);
-
-                ActualizarListaEquipos(categoria);
+                await firebase.Child("equipos").Child(equipoEliminar.Key).DeleteAsync();
             }
 
+            // Eliminar localmente
+            if (categoria == "Varonil")
+                equiposVaronil.Remove(equipoSeleccionado);
+            else if (categoria == "Femenil")
+                equiposFemenil.Remove(equipoSeleccionado);
+
+            ActualizarListaEquipos(categoria);
             listaEquipos.SelectedItem = null;
         }
 
+
+        public class EquipoFirebase
+        {
+            public string nombre { get; set; }
+            public string categoria { get; set; }
+        }
 
 
         private async void Volver_Clicked(object sender, EventArgs e)
